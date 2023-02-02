@@ -1,0 +1,45 @@
+:root {
+  --nav-height: 42px;
+  --menu-width: 250px;
+}
+
+body {
+  margin: 0;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.h-100vh {
+  height: 100vh;
+}
+
+.nav-main {
+  height: var(--nav-height);
+  background-color: rgb(22, 56, 117);
+  width: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  z-index: 300;
+}
+
+.menu-leftside-main {
+  width: var(--menu-width);
+  height: calc(100% - var(--nav-height));
+  top: var(--nav-height);
+  left: 0;
+  position: absolute;
+  background-color: aquamarine;
+  z-index: 200;
+}
+
+.dashboard-container-main {
+  z-index: 100;
+  width: calc(100% - var(--menu-width));
+  height: calc(100% - var(--nav-height));
+  top: var(--nav-height);
+  left: var(--menu-width);
+  position: absolute;
+  background-color: rgb(19, 126, 90);
+}
+

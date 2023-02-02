@@ -1,0 +1,10 @@
+.menu-leftside-main{
+    width: var(--menu-width);
+    height: calc( 100% - var(--nav-height));
+    top: var(--nav-height);
+    left: 0;
+    position: absolute;
+    background-color: aquamarine;
+    z-index: 200;
+
+}

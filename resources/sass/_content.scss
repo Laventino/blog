@@ -1,0 +1,10 @@
+
+.dashboard-container-main{
+    z-index: 100;
+    width: calc( 100% - var(--menu-width));
+    height: calc( 100% - var(--nav-height));
+    top: var(--nav-height);
+    left: var(--menu-width);
+    position: absolute;
+    background-color: rgb(19, 126, 90);
+}
