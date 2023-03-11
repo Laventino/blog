@@ -14,6 +14,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/login', [LoggingController::class,'index']);
-Route::get('/', [DashboardController::class,'index']);
-Route::get('/show', [DashboardController::class,'show']);
+Route::get('/login', [LoggingController::class,'index'])->name('login');
+
+
+// Route::get('/', [DashboardController::class,'index']);
+// Route::get('/show', [DashboardController::class,'show']);
+
+
+Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/task', 'TaskController@index')->name('task');
+
+
+Route::fallback(function(){
+    if (!Auth::user()) {
+        return redirect()->to('/login');
+    }else{
+        return redirect()->to('/home');
+    }
+});
+Auth::routes();

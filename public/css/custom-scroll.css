@@ -1,0 +1,74 @@
+/* custom scroll */
+.custom_scroll_container .custom_scroll {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    position: relative;
+}
+
+.custom_scroll_container .custom_scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.custom_scroll_container .custom_scroll_vertical_bar,
+.custom_scroll_container .custom_scroll_horizontal_bar {
+    position: absolute;
+    background-color: #aaaaaa;
+    border-radius: 5px;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.custom_scroll_container .custom_scroll_vertical_bar {
+    width: 8px;
+    height: 100%;
+    top: 0;
+    right: 0;
+    opacity: 0.2;
+    display: none;
+}
+
+.custom_scroll_container .custom_scroll_horizontal_bar {
+    height: 8px;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+    opacity: 0.2;
+    display: none;
+}
+
+.custom_scroll_container .custom_scroll_vertical_bar:hover,
+.custom_scroll_container .custom_scroll_horizontal_bar:hover {
+    opacity: 0.7;
+}
+
+.custom_scroll_container.is_drag_vertical_bar .custom_scroll_vertical_bar,
+.custom_scroll_container.is_drag_horizontal_bar .custom_scroll_horizontal_bar {
+    opacity: 0.7;
+}
+
+.custom_scroll_container .custom_scroll_vertical_bar .bar,
+.custom_scroll_container .custom_scroll_horizontal_bar .bar {
+    position: absolute;
+    background-color: rgb(248, 248, 248);
+    border-radius: 5px;
+}
+
+.custom_scroll_container .custom_scroll_vertical_bar .bar {
+    height: 50px;
+    width: 8px;
+    top: 0;
+}
+
+.custom_scroll_container .custom_scroll_horizontal_bar .bar {
+    height: 8px;
+    width: 50px;
+    left: 0;
+}
+
+.custom_scroll_container {
+    position: relative;
+    display: flex;
+    width: 100%;
+    height: 500px;
+}
