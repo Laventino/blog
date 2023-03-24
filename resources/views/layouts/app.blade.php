@@ -25,12 +25,16 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <!-- Custom function -->
-    <script src="{{ asset('js/custom-scroll.js') }}"></script>
-    <link href="{{ asset('css/custom-scroll.css') }}" rel="stylesheet">
-    
-    <script src="{{ asset('js/custom-drag-drop.js') }}"></script>
-    <link href="{{ asset('css/custom-drag-drop.css') }}" rel="stylesheet">
-    
+    <script src="{{ asset('js/library.js') }}"></script>
+
+    @if (Auth::check())
+        <!-- Custom function -->
+        <script src="{{ asset('js/custom-scroll.js') }}"></script>
+        <link href="{{ asset('css/custom-scroll.css') }}" rel="stylesheet">
+
+        <script src="{{ asset('js/custom-drag-drop.js') }}"></script>
+        <link href="{{ asset('css/custom-drag-drop.css') }}" rel="stylesheet">
+    @endif
 </head>
 <style>
     .xx {
@@ -44,9 +48,9 @@
     <div id="app">
         @if (Auth::check())
         @endif
-            <main class="py-4">
-                @yield('content')
-            </main>
+        <main class="py-4">
+            @yield('content')
+        </main>
     </div>
 </body>
 

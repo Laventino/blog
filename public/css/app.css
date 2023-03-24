@@ -2,15 +2,25 @@
 *{
   box-sizing: border-box;
 }
+/* general css */
+.h-100vh {
+  height: 100vh;
+}
+
+.d-hidden,
+.d-hidden-block{
+  display: none;
+}
+.d-hidden-block.show{
+  display: block;
+}
+/* end general css */
+
 body {
   font-family: Noto-Sans;
   margin: 0;
   box-sizing: border-box;
   position: relative;
-}
-
-.h-100vh {
-  height: 100vh;
 }
 
 .nav-main {

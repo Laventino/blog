@@ -1,47 +1,49 @@
 !(function (t) {
     !window.jQuery ? console.log("Custom scroll library is require Jquery library to run") : t();
 })(function () {
-    /* 
-        -cs_dd_container
-        -cs_dd_box
-    */
     class dragdrop {
-        constructor(el) {
+        constructor() {
             this.droppable_box = ["a", "c-123"];
             this.undroppable_box = ["b"];
             this.current_target = null;
             this.clone_el = null;
             this.sample_clone_el = null;
-            this.virtual_space = null;
+            // this.virtual_space = null;
             this.onMouseUpOn = null;
             this.onMouseMoveOn = null;
-            this.init(el);
         }
-        init(el) {
-            let onDrag = this.onDrag.bind(this)
-            el.off("mousedown", onDrag);
-            el.on("mousedown", onDrag);
+        init() {
+            let onDrag = this.onDrag.bind(this);
+            $(document).off("mousedown", onDrag);
+            $(document).on("mousedown", onDrag);
         }
         onDrag(e) {
             e.preventDefault();
-            this.virtual_space =  $('<div></div>');
-            let clone_el = $(e.currentTarget).clone();
-            let sample_clone_el = $(e.currentTarget).clone();
-            $(e.currentTarget).addClass("dd_current_origin")
-            this.current_target = $(e.currentTarget);
-            this.clone_el = clone_el;
-            this.sample_clone_el = sample_clone_el;
-            sample_clone_el.css({ "opacity": "0.5", }).addClass("dd_sample_element");
-            clone_el.css({
-                "width": $(e.currentTarget).outerWidth(), "height": $(e.currentTarget).outerHeight(), "opacity": "0.5", "position": "fixed", "z-index": "1000", "pointer-events": "none"
-            });
-            this.setPositionClone(e.originalEvent.offsetX, e.originalEvent.offsetY, $(e.currentTarget).outerWidth(), $(e.currentTarget).outerHeight(), e);
-            let onMouseMove = this.onMouseMove.bind(this, e.originalEvent.offsetX, e.originalEvent.offsetY, $(e.currentTarget).outerWidth(), $(e.currentTarget).outerHeight());
-            let onMouseUp = this.onMouseUp.bind(this, onMouseMove);
-            this.onMouseUpOn = onMouseUp;
-            this.onMouseMoveOn = onMouseMove;
-            $(document).off("mousemove", onMouseMove).on("mousemove", onMouseMove).off("mouseup", onMouseUp).on("mouseup", onMouseUp);
-            clone_el.appendTo("body");
+            if (e.which == 1) {
+                // this.virtual_space = $('<div></div>');
+                let holder = $(e.target).closest("[dd-holder-id]");
+
+                if (holder.length) {
+                    this.current_target = $(e.target).closest("[dd-group-id]");
+                    let clone_el = this.current_target.clone();
+                    let sample_clone_el = this.current_target.clone();
+                    this.clone_el = clone_el;
+                    this.sample_clone_el = sample_clone_el;
+                    sample_clone_el.css({ "opacity": "0.5", }).addClass("dd_sample_element");
+                    clone_el.css({
+                        "width": this.current_target.outerWidth(), "height": this.current_target.outerHeight(), "opacity": "0.5", "margin": "0", "position": "fixed", "z-index": "1000", "pointer-events": "none"
+                    });
+                    this.setPositionClone(e.clientX - this.current_target.offset().left, e.clientY - this.current_target.offset().top, this.current_target.outerWidth(), this.current_target.outerHeight(), e);
+                    let onMouseMove = this.onMouseMove.bind(this, e.clientX - this.current_target.offset().left, e.clientY - this.current_target.offset().top, this.current_target.outerWidth(), this.current_target.outerHeight());
+                    let onMouseUp = this.onMouseUp.bind(this, onMouseMove);
+                    this.onMouseUpOn = onMouseUp;
+                    this.onMouseMoveOn = onMouseMove;
+                    $(document).off("mousemove", onMouseMove).on("mousemove", onMouseMove).off("mouseup", onMouseUp).on("mouseup", onMouseUp);
+                    this.current_target.before(sample_clone_el).css({ "display": "none", }).addClass("dd_current_origin")
+                    clone_el.appendTo("body");
+                    $("body").addClass("isDraging");
+                }
+            }
         }
         setPositionClone(x, y, w, h, e) {
             if ((e.clientX - x) >= 0) {
@@ -96,19 +98,67 @@
 
         }
         sampleDropRender(e) {
-            let over_el = $(e.target).closest(".dd_container");
-            if(over_el.length){
-                let group_name = over_el.attr("dd-group");
-                let isInArray = this.isInArray(this.droppable_box, group_name);
-                if(isInArray){
-                    if(over_el.find(".dd_current_origin").length){
-                        $(this.virtual_space).append(this.sample_clone_el);
-                    }else{
-                        $(e.target).closest(".dd_container").append(this.sample_clone_el);
+            let group_id = this.current_target.attr("dd-group-id");
+            let over_el = $(e.target).closest("[dd-field-id=" + group_id + "]");
+
+            if (over_el.length) {
+                // let field_id = over_el.attr("dd-field-id");
+                // group_id = group_id.split(",")
+                // dd-element-id="c-123" dd-group-id="c-123"
+                // let isInArray = this.isInArray(this.droppable_box, field_id);
+                let over_dd_box = $(e.target).closest("[dd-group-id=" + group_id + "]");
+                if (over_dd_box.length && (this.sample_clone_el[0] != over_dd_box[0])) {
+                    if (over_dd_box.parent().find(this.sample_clone_el).length &&
+                        ((this.sample_clone_el.offset().left > (over_dd_box.offset().left + over_dd_box.outerWidth())) ||
+                            (over_dd_box.offset().left > (this.sample_clone_el.offset().left + this.sample_clone_el.outerWidth())))) {
+
+                        // if (e.clientX < ((over_dd_box.outerWidth() / 2) + over_dd_box.offset().left)) {
+                        //     if ($(over_dd_box).prev()[0] != this.sample_clone_el[0]) {
+                        //         $(over_dd_box).before(this.sample_clone_el);
+                        //     }
+                        // } else {
+                        //     if ($(over_dd_box).next()[0] != this.sample_clone_el[0]) {
+                        //         $(over_dd_box).after(this.sample_clone_el);
+                        //     }
+                        // }
+
+
+                        if (over_dd_box.offset().left > this.sample_clone_el.offset().left) {
+
+                            if ($(over_dd_box).next()[0] != this.sample_clone_el[0]) {
+                                $(over_dd_box).after(this.sample_clone_el);
+                            }
+                        } else {
+                            if ($(over_dd_box).prev()[0] != this.sample_clone_el[0]) {
+                                $(over_dd_box).before(this.sample_clone_el);
+                            }
+                        }
+                    } else {
+
+                        if (over_dd_box.offset().top > this.sample_clone_el.offset().top) {
+                            if ($(over_dd_box).next()[0] != this.sample_clone_el[0]) {
+                                $(over_dd_box).after(this.sample_clone_el);
+                            }
+                        } else {
+                            if ($(over_dd_box).prev()[0] != this.sample_clone_el[0]) {
+                                $(over_dd_box).before(this.sample_clone_el);
+                            }
+                        }
+                        // if (e.clientY < ((over_dd_box.outerHeight() / 2) + over_dd_box.offset().top)) {
+                        //     if ($(over_dd_box).prev()[0] != this.sample_clone_el[0]) {
+                        //         $(over_dd_box).before(this.sample_clone_el);
+                        //     }
+                        // } else {
+                        //     if ($(over_dd_box).next()[0] != this.sample_clone_el[0]) {
+                        //         $(over_dd_box).after(this.sample_clone_el);
+                        //     }
+                        // }
+                    }
+                } else {
+                    if (!over_el.find("[dd_container=" + group_id + "]").find(this.sample_clone_el).length) {
+                        over_el.find("[dd_container=" + group_id + "]").append(this.sample_clone_el);
                     }
                 }
-            }else{
-                $(this.virtual_space).append(this.sample_clone_el);
             }
         }
         onMouseMove(x, y, w, h, e) {
@@ -116,24 +166,32 @@
             this.sampleDropRender(e);
         }
         onMouseUp(e) {
-            if($(document).find(this.sample_clone_el).length){
+            if ($(document).find(this.sample_clone_el).length) {
                 this.sample_clone_el.after(this.current_target);
-            }else{
+            } else {
             }
-            this.current_target?this.current_target.removeClass("dd_current_origin"):null;
-            this.clone_el?this.clone_el.remove():null;
-            this.sample_clone_el?this.sample_clone_el.remove():null;
-            this.virtual_space?this.virtual_space.remove():null;
+            this.current_target ? this.current_target.removeClass("dd_current_origin").css({ "display": "", }) : null;
+            this.clone_el ? this.clone_el.remove() : null;
+            this.sample_clone_el ? this.sample_clone_el.remove() : null;
+            // this.virtual_space ? this.virtual_space.remove() : null;
             $(document).off("mousemove", this.onMouseMoveOn).off("mouseup", this.onMouseUpOn);
+            $("body").removeClass("isDraging");
         }
     }
 
 
     $(document).ready(function () {
-        let x = $(".cs_dd_box")
-        let y = new dragdrop(x);
-        y.id = "c-123";
-        $(window).resize(function () { });
+        let y = new dragdrop();
+        y.init();
+        // $(window).resize(function () { });
     });
 
 });
+
+/* usage
+<div dd-field-id="c-123">
+<div dd_container>
+    <div dd-element-id="c-123" dd-group-id="c-123">
+    </div>
+</div>
+</div> */

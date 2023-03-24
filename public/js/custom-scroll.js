@@ -44,40 +44,41 @@ function scrollOnDragToEdgeListener(){
         let rang = 0;
         let funX = (e) => {
             scroll_container = $(this);
-            clone_funY = funY.bind(this);
-            $(document).off("mousemove", funY);
-            $(document).on("mousemove", funY);
-            $(document).off("mouseup", funZ);
-            $(document).on("mouseup", funZ);
+                clone_funY = funY.bind(this);
+                $(document).off("mousemove", funY);
+                $(document).on("mousemove", funY);
+                $(document).off("mouseup", funZ);
+                $(document).on("mouseup", funZ);
         }
         let funY = (e) => {
-            let layer_x = e.pageX - $(this).offset().left;
-            let layer_y = e.pageY - $(this).offset().top;
-            let cs_cw = $(this).prop("clientWidth");
-            if (layer_x > cs_cw - 30 || layer_x < 30) {
-                switching = layer_x < 30?0:1;
-                rang = ((cs_cw - layer_x) / 10).toFixed(0);
-                switch (rang) {
-                    case "3":
-                        speed = 5;
-                        break;
-                    case "2":
-                        speed = 10;
-                        break;
-
-                    default:
-                        speed = 20;
-                        break;
-                }
-                if (interval_scroll == null) {
+            if($("body").hasClass("isDraging")){
+                let layer_x = e.pageX - $(this).offset().left;
+                let layer_y = e.pageY - $(this).offset().top;
+                let cs_cw = $(this).prop("clientWidth");
+                if (layer_x > cs_cw - 30 || layer_x < 30) {
+                    switching = layer_x < 30?0:1;
+                    rang = ((cs_cw - layer_x) / 10).toFixed(0);
+                    switch (rang) {
+                        case "3":
+                            speed = 5;
+                            break;
+                        case "2":
+                            speed = 10;
+                            break;
+    
+                        default:
+                            speed = 20;
+                            break;
+                    }
+                    if (interval_scroll == null) {
+                        interval_scroll != null ? clearInterval(interval_scroll) : null;
+                        interval_scroll = setInterval(funI, 20);
+                    }
+                }else {
                     interval_scroll != null ? clearInterval(interval_scroll) : null;
-                    interval_scroll = setInterval(funI, 20);
+                    interval_scroll = null;
                 }
-            }else {
-                interval_scroll != null ? clearInterval(interval_scroll) : null;
-                interval_scroll = null;
             }
-
         }
         let funZ = () => {
             interval_scroll != null ? clearInterval(interval_scroll) : null;
@@ -276,11 +277,49 @@ function customScrollBarListener() {
         $(this).on("mousedown", funX);
     });
 }
-
+function backGroundScroll(e){
+    let pre_pos_scroll = null;
+    var startMousePos = {
+        x: 0,
+        y: 0
+    };
+    let scroll_container = null;
+    let funX = (event) => {
+        if($(event.target).hasClass("custom_scroll")){
+            scroll_container = $(event.target).closest(".custom_scroll_container");
+            startMousePos.x = event.pageX;
+            startMousePos.y = event.pageY;
+            pre_pos_scroll = scroll_container.find(".custom_scroll").scrollLeft();
+            $(document).off("mousemove", funY);
+            $(document).on("mousemove", funY);
+            $(document).off("mouseup", funZ);
+            $(document).on("mouseup", funZ);
+        }
+    }
+    
+    let funY = (event) => {
+        var currentMousePos = {
+            x: event.pageX - startMousePos.x,
+            y: event.pageY - startMousePos.y
+        };
+        let custom_scroll = scroll_container.find(".custom_scroll");
+        let move = pre_pos_scroll - currentMousePos.x;
+        custom_scroll[0].scrollTo({
+            left: move,
+        });
+        
+    }
+    let funZ = (event) => {
+        $(document).off("mousemove", funY);
+        $(document).off("mouseup", funZ);
+    }
+    $(document).on("mousedown",".custom_scroll_container",funX);
+}
 function initCustomScrollBar() {
     checkCustomScrollBar();
     customScrollBarListener();
     scrollOnDragToEdgeListener();
+    backGroundScroll();
 }
 $(document).ready(function () {
     initCustomScrollBar();
