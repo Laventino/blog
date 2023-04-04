@@ -43,6 +43,7 @@
         font-weight: bold;
         font-size: 24px;
         color: white;
+        text-transform: capitalize;
     }
 
     .right-slider .body-container {
@@ -189,7 +190,7 @@
             <div class="profile-container"><img src="{{ URL::to('/') }}/assets/image/logo.svg" width="100%"
                     height="100%" alt=""></div>
             <div class="header-title">
-                Ly Menglong
+                {{Auth::user()->name}}
             </div>
         </div>
         <div class="body-container">
@@ -220,11 +221,13 @@
             <div class="menu-info " menu-slider-target="info">
                 <li class="info-data">
                     <label for="name">Name</label>:
-                    <div class="input-style" id="name" input-text-click>Ly Menglong</div>
+                    <div class="input-style" id="name" input-text-click>
+                        {{Auth::user()->name}}
+                    </div>
                 </li>
                 <li class="info-data">
                     <label for="name">Email</label>:
-                    <div class="input-style" id="email" input-text-click>lymenglong098221109@gmail.com</div>
+                    <div class="input-style" id="email" input-text-click>{{Auth::user()->email}}</div>
                 </li>
                 <li class="info-data">
                     <label for="name">Phnone</label>:

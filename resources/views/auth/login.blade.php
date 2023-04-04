@@ -45,7 +45,7 @@
             border-radius: 3px;
             padding: 0 12px;
             font-size: 14px;
-            margin: 0 0 18px 0;
+            margin: 18px 0 0 0;
             width: 100%;
             outline: #dfdfdf solid 2px;
 
@@ -61,7 +61,7 @@
 
         .login-page .fgp-container {
             display: flex;
-            justify-content: end;
+            justify-content: space-between;
         }
 
         .login-page .fgp-container a {
@@ -97,6 +97,13 @@
             font-weight: bold;
             color: #888888;
         }
+        .login-page .invalid-feedback{
+            font-size: 12px;
+            color: red;
+        }
+        .login-page .normal-checkbox{
+            margin-top: 18px;
+        }
     </style>
     <div class="login-page">
         <div class="container">
@@ -120,7 +127,7 @@
 
                                     @error('email')
                                         <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
+                                            {{ $message }}
                                         </span>
                                     @enderror
                                 </div>
@@ -134,7 +141,7 @@
 
                                     @error('password')
                                         <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
+                                            {{ $message }}
                                         </span>
                                     @enderror
                                 </div>
@@ -156,6 +163,14 @@
 
 
                             <div class="fgp-container">
+                                <div class="">
+
+                                    @if (Route::has('password.request'))
+                                        <a class="" href="{{ route('register') }}">
+                                            {{ __('Sigin Up') }}
+                                        </a>
+                                    @endif
+                                </div>
                                 <div class="">
 
                                     @if (Route::has('password.request'))

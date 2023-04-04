@@ -23,7 +23,9 @@ Route::get('/login', [LoggingController::class,'index'])->name('login');
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/task', 'TaskController@index')->name('task');
-
+Route::post('/add-new-card', 'TaskController@addNewCard');
+Route::post('/add-new-list', 'TaskController@addNewList');
+Route::post('/change-list-task-position', 'TaskController@changePosition');
 
 Route::fallback(function(){
     if (!Auth::user()) {

@@ -180,7 +180,7 @@
             background-color: #999999;
             color: white;
         }
-        
+
         .vertical-container .input-submit-card {
             padding: 4px 12px;
             background-color: #999999;
@@ -203,30 +203,25 @@
             justify-content: center;
             text-decoration: none;
         }
+
         .vertical-container .input-submit:hover,
         .task-page .task-container .input-submit:hover {
             background-color: #8a8a8a;
         }
+
         .vertical-container .input-submit:active,
         .task-page .task-container .input-submit:active {
             background-color: #666666;
         }
-
-
-
-
-
-
-
-
     </style>
     <div class="task-page">
         <div class="container">
             <div class="custom_scroll_container">
-                <div class="task-container custom_scroll" dd-field-id="c-1234" dd_container="c-1234" >
-                    <div class="vertical-container task_list_container" dd-field-id="c-123" dd-group-id="c-1234"{{-- dd-element-id="c-1234"  --}}> 
-                        <div class="list-vertical-title"  dd-holder-id="c-1234">Pending</div>
-                        <div  dd_container="c-123">
+                <div class="task-container custom_scroll" dd-field-id="c-1234" dd_container="c-1234">
+                    {{-- <div class="vertical-container task_list_container" dd-field-id="c-123"
+                        dd-group-id="c-1234">
+                        <div class="list-vertical-title" dd-holder-id="c-1234">Pending</div>
+                        <div dd_container="c-123">
                             <div class="task-element" dd-element-id="c-123" dd-group-id="c-123" dd-holder-id="c-123">
                                 <div class="task-element-title">
                                     <div class="text">Add function to task list</div>
@@ -261,7 +256,54 @@
                                     value="Add card">
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
+                    <?php
+                    if (isset($lists)) {
+                        $str_list = '';
+                        foreach ($lists as $key => $list) {
+                            $str_task = '';
+                            foreach ($list->tasks as $key => $task) {
+                                $str_task .=
+                                    '<div class="task-element" dd-element-id="c-123" dd-group-id="c-123" dd-holder-id="c-123" task-id="' .
+                                    $task->id .
+                                    '">
+                                                                                    <div class="task-element-title">
+                                                                                <div class="text">' .
+                                    $task->title .
+                                    '</div>
+                                                                                        <div class="tool">+</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                                ';
+                            }
+                            $str_list .=
+                                '<div class="vertical-container task_list_container" dd-field-id="c-123" dd-group-id="c-1234" list-id="' .
+                                $list->id .
+                                '">
+                                                                        <div class="list-vertical-title" dd-holder-id="c-1234">' .
+                                $list->title .
+                                '</div>
+                                                            <div dd_container="c-123">
+                                                                ' .
+                                $str_task .
+                                '
+                                                            </div>
+                                                            <div class="add-card-vertical-container add_card_vertical_container">
+                                                                <div class="add-card-vertical-title add_card_vertical_title">
+                                                                    Add a card
+                                                                </div>
+                                                                <div class="add-card-form d-hidden add_card_form">
+                                                                    <textarea name="" id="" auto-resize="on" placeholder="Please enter task title..."></textarea>
+                                                                    <input class="input-submit input-submit-card input_submit_card" type="submit"
+                                                                        value="Add card">
+                                                                </div>
+                                                            </div>
+                                                        </div>';
+                        }
+                        echo $str_list;
+                    }
+                    
+                    ?>
                     <div class="add-list-vertical-container add_list_vertical_container">
                         <div class="add-list-vertical-text add_list_btn">Add another list</div>
                         <div class="add-list-vertical-form add_list_form">
@@ -329,25 +371,28 @@
         function submitNewList() {
             let val = $(".add-list-vertical-container .input-text").val();
             if (val.length) {
-                let str = `
-                    <div class="vertical-container task_list_container" dd-field-id="c-123" dd-group-id="c-1234">
-                        <div class="list-vertical-title" dd-holder-id="c-1234">`+val+`</div>
+                let el = $(`
+                    <div class="vertical-container task_list_container" dd-field-id="c-123" dd-group-id="c-1234" list-id="" style="">
+                                    <div class="list-vertical-title" dd-holder-id="c-1234">` + val + `</div>
                         <div dd_container="c-123">
-
                         </div>
                         <div class="add-card-vertical-container add_card_vertical_container">
                             <div class="add-card-vertical-title add_card_vertical_title">
                                 Add a card
                             </div>
                             <div class="add-card-form d-hidden add_card_form">
-                                <textarea name="" id="" auto-resize="on" placeholder="Please enter task title..."></textarea>
-                                <input class="input-submit input-submit-card input_submit_card" type="submit"
-                                    value="Add card">
+                                <textarea name="" id="" auto-resize="on" placeholder="Please enter task title..." style="height:0px;overflow-y:hidden;"></textarea>
+                                <input class="input-submit input-submit-card input_submit_card" type="submit" value="Add card">
                             </div>
                         </div>
                     </div>
-                    `;
-                $(".add-list-vertical-container").before(str);
+                    `);
+                $(".add-list-vertical-container").before(el);
+                ajaxCustom({
+                    "title": val
+                }, "/add-new-list", function(res) {
+                    el.attr("list-id", res.id);
+                });
                 $(".add-list-vertical-container .input-text").val("").focus();
                 if (typeof checkCustomScrollBar === 'function') {
                     checkCustomScrollBar();
@@ -358,21 +403,62 @@
 
         function submitNewCard() {
             let val = $(this).parent().find("textarea").val();
+            let list_id = $(this).closest("[list-id]").attr("list-id");
             if (val.length) {
-                let str = `<div class="task-element" dd-element-id="c-123" dd-group-id="c-123" dd-holder-id="c-123">
+                let el = $(`<div class="task-element" dd-element-id="c-123" dd-group-id="c-123" dd-holder-id="c-123" task-id="">
                                 <div class="task-element-title">
-                                    <div class="text">`+val+`</div>
+                                    <div class="text">` + val + `</div>
                                     <div class="tool">+</div>
                                 </div>
-                            </div>`;
-                $(this).closest(".task_list_container").find("[dd_container]").append(str);
+                            </div>`);
+                $(this).closest(".task_list_container").find("[dd_container]").append(el);
+                if(list_id != ""){
+                    ajaxCustom({
+                        "title": val,
+                        "list_id": list_id
+                    }, "/add-new-card", function(res) {
+                        el.attr("task-id", res.id);
+                    });
+                }else{
+                    let waiting =setInterval(() => {
+                        let list_id = el.closest("[list-id]").attr("list-id");
+                        if(list_id != ""){
+                            ajaxCustom({
+                                "title": val,
+                                "list_id": list_id
+                            }, "/add-new-card", function(res) {
+                                el.attr("task-id", res.id);
+                            });
+                            clearInterval(waiting);
+                        }
+                    }, 500);
+                }
                 $(this).parent().find("textarea").val("").focus();
             }
 
         }
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        function ajaxCustom(data_, url_, func_) {
+            $.ajax({
+                url: url_,
+                data: data_,
+                type: "POST",
+                success: function(result) {
+                    if (typeof func_ == "function") {
+                        func_(result);
+                    }
+                }
+            });
+        }
 
         function btnAddCard() {
             let funY = null;
+
             function funX(e) {
                 if (!$(e.target).closest(".add_card_form").length) {
                     $(this).css("display", "block");
@@ -380,6 +466,7 @@
                     $(document).off("mousedown", funY);
                 }
             }
+
             function funZ(e) {
                 $(this).css("display", "none");
                 $(this).parent().find(".add_card_form").css("display", "block").find("textarea").focus();
@@ -387,18 +474,70 @@
                 $(document).off("mousedown", funY);
                 $(document).on("mousedown", funY);
             }
-            $(document).off("click",".add_card_vertical_title",funZ );
-            $(document).on("click",".add_card_vertical_title",funZ );
+            $(document).off("click", ".add_card_vertical_title", funZ);
+            $(document).on("click", ".add_card_vertical_title", funZ);
 
         }
+
+        function getStructure() {
+            let l = [];
+            let t = {};
+            $("[list-id]").each(function(index) {
+                let z = [];
+                $(this).find("[task-id]").each(function(index) {
+                    let y = {
+                        "id": $(this).attr("task-id"),
+                    }
+                    z.push(y);
+                });
+                t[$(this).attr("list-id")] = z;
+                let i = {
+                    "id": $(this).attr("list-id")
+                }
+                l.push(i);
+            });
+            return {
+                "list_groups": l,
+                "task_groups": t
+            };
+        }
         $(document).ready(function() {
-            $(document).off("click",".add_list_vertical_container .add_list_btn", showFormAddNewList);
-            $(document).on("click",".add_list_vertical_container .add_list_btn", showFormAddNewList);
-            $(document).off("click",".add_list_vertical_container .input_submit_list", submitNewList);
-            $(document).on("click",".add_list_vertical_container .input_submit_list", submitNewList);
-            $(document).off("click",".add_card_vertical_container .input_submit_card", submitNewCard);
-            $(document).on("click",".add_card_vertical_container .input_submit_card", submitNewCard);
+            $(document).off("click", ".add_list_vertical_container .add_list_btn", showFormAddNewList);
+            $(document).on("click", ".add_list_vertical_container .add_list_btn", showFormAddNewList);
+            $(document).off("click", ".add_list_vertical_container .input_submit_list", submitNewList);
+            $(document).on("click", ".add_list_vertical_container .input_submit_list", submitNewList);
+            $(document).off("click", ".add_card_vertical_container .input_submit_card", submitNewCard);
+            $(document).on("click", ".add_card_vertical_container .input_submit_card", submitNewCard);
             btnAddCard();
+            let map = getStructure();
+            let dd = new dragdrop();
+            dd.funcAfterMouseUp = (t) => {
+                if (JSON.stringify(map) !== JSON.stringify(getStructure())) {
+                    let c = getStructure();
+                    let change_list = "";
+                    let change_task = [];
+                    if (JSON.stringify(map.list_groups) !== JSON.stringify(c.list_groups)) {
+                        change_list = c.list_groups;
+                    }
+                    for (let list_id in map.task_groups) {
+                        if (JSON.stringify(map.task_groups[list_id]) !== JSON.stringify(c.task_groups[
+                                list_id])) {
+                            change_task.push({
+                                "list_id": list_id,
+                                "tasks": c.task_groups[list_id]
+                            });
+
+                        }
+                    }
+                    ajaxCustom({
+                        "list": change_list,
+                        "task": change_task
+                    }, "/change-list-task-position", function(res) {});
+
+                }
+                map = getStructure();
+            }
+            dd.init();
         });
     </script>
 @endsection
