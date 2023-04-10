@@ -22,6 +22,7 @@
 
     .nav-section .profile-container {
         height: calc(var(--nav-height) - 12px);
+        width: calc(var(--nav-height) - 12px);
         border-radius: 50%;
         overflow: hidden;
         margin:  6px 12px;   

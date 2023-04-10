@@ -19,6 +19,10 @@ class dragdrop {
     onDrag(e) {
         if (e.which == 1) {
             let holder = $(e.target).closest("[dd-holder-id]");
+            let disabler = $(e.target).closest("[dd-disabler]");
+            if(holder.find(disabler).length){
+                return false;
+            }
             if (holder.length) {
                 e.preventDefault();
                 this.current_target = $(e.target).closest("[dd-group-id]");
@@ -28,7 +32,7 @@ class dragdrop {
                 this.sample_clone_el = sample_clone_el;
                 sample_clone_el.css({ "opacity": "0.5", }).addClass("dd_sample_element");
                 clone_el.css({
-                    "width": this.current_target.outerWidth(), "height": this.current_target.outerHeight(), "opacity": "0.5", "margin": "0", "position": "fixed", "z-index": "1000", "pointer-events": "none"
+                    "width": this.current_target.outerWidth(), "height": this.current_target.outerHeight(), "opacity": "1", "margin": "0", "position": "fixed", "z-index": "1000", "pointer-events": "none"
                 });
                 this.setPositionClone(e.clientX - this.current_target.offset().left, e.clientY - this.current_target.offset().top, this.current_target.outerWidth(), this.current_target.outerHeight(), e);
                 let onMouseMove = this.onMouseMove.bind(this, e.clientX - this.current_target.offset().left, e.clientY - this.current_target.offset().top, this.current_target.outerWidth(), this.current_target.outerHeight());
@@ -36,8 +40,7 @@ class dragdrop {
                 this.onMouseUpOn = onMouseUp;
                 this.onMouseMoveOn = onMouseMove;
                 $(document).off("mousemove", onMouseMove).on("mousemove", onMouseMove).off("mouseup", onMouseUp).on("mouseup", onMouseUp);
-                this.current_target.before(sample_clone_el).css({ "display": "none", }).addClass("dd_current_origin")
-                clone_el.appendTo("body");
+                
                 $("body").addClass("isDraging");
             }
         }
@@ -159,6 +162,10 @@ class dragdrop {
         }
     }
     onMouseMove(x, y, w, h, e) {
+        if(!$(".dd_current_origin").length){
+            this.current_target.before(this.sample_clone_el).css({ "display": "none", }).addClass("dd_current_origin")
+            this.clone_el.appendTo("body");
+        }
         this.setPositionClone(x, y, w, h, e);
         this.sampleDropRender(e);
     }

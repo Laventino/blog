@@ -108,100 +108,110 @@
         .register-page .normal-checkbox {
             margin-top: 18px;
         }
+
+        .register-page .card-container {
+            display: flex;
+            justify-content: center;
+        }
     </style>
     <div class="register-page">
         <div class="container">
             <div class="card-wrapper">
                 <div class="logo-container"><img src="{{ URL::to('/') }}/assets/image/logo.svg" width="100%" height="100%"
                         alt=""></div>
-                <div class="card">
-                    <div class="sigin-banner">
-                        Register
+                <div class="card-container">
+
+                    <div class="card">
+                        <div class="sigin-banner">
+                            Register
+                        </div>
+
+                        <div class="card-body">
+                            <form method="POST" action="{{ route('register') }}">
+                                @csrf
+
+
+                                <div class="">
+                                    <input id="name" type="text"
+                                        class="form-control @error('name') is-invalid @enderror" name="name"
+                                        placeholder="{{ __('Name') }}" value="{{ old('name') }}" required
+                                        autocomplete="name" autofocus>
+
+                                    @error('name')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+
+
+                                <div class="">
+                                    <input id="email" type="email" class=" @error('email') is-invalid @enderror"
+                                        name="email" placeholder="{{ __('E-Mail Address') }}" value="{{ old('email') }}"
+                                        required autocomplete="email" required autocomplete="email">
+
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert">
+                                            {{ $message }}
+                                        </span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <input id="password" type="password" placeholder="{{ __('Password') }}"
+                                            class="form-control @error('password') is-invalid @enderror" name="password"
+                                            required autocomplete="new-password">
+
+                                        @error('password')
+                                            <span class="invalid-feedback" role="alert">
+                                                {{ $message }}
+                                            </span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group row">
+                                    <div class="col-md-6">
+                                        <input id="password-confirm" type="password" class="form-control"
+                                            placeholder="{{ __('Confirm Password') }}" name="password_confirmation"
+                                            required autocomplete="new-password">
+                                    </div>
+                                </div>
+
+
+
+                                <button type="submit" class="btn-submit">
+                                    {{ __('Register') }}
+                                </button>
+
+
+
+                                <div class="fgp-container">
+                                    <div class="">
+
+                                        @if (Route::has('password.request'))
+                                            <a class="" href="{{ route('login') }}">
+                                                {{ __('Back To Login') }}
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+
+
+
+
+
+
+
+
+
+
                     </div>
-                    
-                <div class="card-body">
-                    <form method="POST" action="{{ route('register') }}">
-                        @csrf
-
-                        
-                        <div class="">
-                            <input id="name" type="text"
-                                class="form-control @error('name') is-invalid @enderror" name="name" placeholder="{{ __('Name') }}"
-                                value="{{ old('name') }}" required autocomplete="name" autofocus>
-
-                            @error('name')
-                                <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                                </span>
-                            @enderror
-                        </div>
-
-
-                        <div class="">
-                            <input id="email" type="email" class=" @error('email') is-invalid @enderror"
-                                name="email" placeholder="{{ __('E-Mail Address') }}" value="{{ old('email') }}"
-                                required autocomplete="email" required autocomplete="email">
-
-                            @error('email')
-                                <span class="invalid-feedback" role="alert">
-                                    {{ $message }}
-                                </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-md-6">
-                                <input id="password" type="password" placeholder="{{ __('Password') }}"
-                                    class="form-control @error('password') is-invalid @enderror" name="password"
-                                    required autocomplete="new-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        {{ $message }}
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-
-                        <div class="form-group row">
-                            <div class="col-md-6">
-                                <input id="password-confirm" type="password" class="form-control" placeholder="{{ __('Confirm Password') }}"
-                                    name="password_confirmation" required autocomplete="new-password">
-                            </div>
-                        </div>
-
-
-                        
-                        <button type="submit" class="btn-submit">
-                            {{ __('Register') }}
-                        </button>
-
-
-                        
-                        <div class="fgp-container">
-                            <div class="">
-
-                                @if (Route::has('password.request'))
-                                    <a class="" href="{{ route('login') }}">
-                                        {{ __('Back To Login') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-
-
-
-
-
-
-
-
-
-
                 </div>
             </div>
 

@@ -1,51 +1,56 @@
-
-*{
+* {
   box-sizing: border-box;
-  
 }
+
 *::-webkit-scrollbar {
   width: 8px;
 }
- 
+
 *::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 }
- 
+
 *::-webkit-scrollbar-thumb {
   background-color: darkgrey;
   /* outline: 1px solid slategrey; */
   border-radius: 5px;
-
 }
 
-
 /* general css */
+
 .h-100vh {
   height: 100vh;
 }
 
 .d-hidden,
-.d-hidden-block{
+.d-hidden-block {
   display: none;
 }
-.d-hidden-block.show{
+
+.d-hidden-block.show {
   display: block;
 }
+
 /* padding */
-.pd-8{
+
+.pd-8 {
   padding: 8px;
 }
+
 /* top botton */
-.pd-tb-8{
+
+.pd-tb-8 {
   padding-top: 8px;
   padding-bottom: 8px;
 }
 
 /* left right */
-.pd-lr-8{
+
+.pd-lr-8 {
   padding-left: 8px;
   padding-right: 8px;
 }
+
 /* end general css */
 
 body {
@@ -86,6 +91,7 @@ body {
 }
 
 /* The container */
+
 .normal-checkbox {
   display: block;
   position: relative;
@@ -95,11 +101,11 @@ body {
   font-size: 14px;
   -webkit-user-select: none;
   -moz-user-select: none;
-  -ms-user-select: none;
   user-select: none;
 }
 
 /* Hide the browser's default checkbox */
+
 .normal-checkbox input {
   position: absolute;
   opacity: 0;
@@ -109,6 +115,7 @@ body {
 }
 
 /* Create a custom checkbox */
+
 .normal-checkbox .checkmark {
   position: absolute;
   top: 0;
@@ -120,16 +127,19 @@ body {
 }
 
 /* On mouse-over, add a grey background color */
+
 .normal-checkbox:hover input ~ .checkmark {
   background-color: #ccc;
 }
 
 /* When the checkbox is checked, add a blue background */
+
 .normal-checkbox input:checked ~ .checkmark {
   background-color: #2196F3;
 }
 
 /* Create the checkmark/indicator (hidden when not checked) */
+
 .normal-checkbox .checkmark:after {
   content: "";
   position: absolute;
@@ -137,11 +147,13 @@ body {
 }
 
 /* Show the checkmark when checked */
+
 .normal-checkbox input:checked ~ .checkmark:after {
   display: block;
 }
 
 /* Style the checkmark/indicator */
+
 .normal-checkbox .checkmark:after {
   left: 6px;
   top: 2px;
@@ -149,215 +161,275 @@ body {
   height: 8px;
   border: solid white;
   border-width: 0 3px 3px 0;
-  -webkit-transform: rotate(45deg);
-  -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
 
 /* response size */
-[class*='c-xl'],
-[class*='c-lg'],
-[class*='c-md'],
-[class*='c-sm'],
-[class*='c-xs']{
+
+[class*=c-xl],
+[class*=c-lg],
+[class*=c-md],
+[class*=c-sm],
+[class*=c-xs] {
   flex-grow: 1;
   width: 100%;
 }
-.custome-responsive-container{
+
+.custome-responsive-container {
   display: flex;
   flex-wrap: wrap;
-  align-content: flex-start
+  align-content: flex-start;
 }
 
 /* @media only screen{ */
-  .c-xs-12{
-    width: 100%;
-  }
-  .c-xs-11{
-    width: 91.6666%;
-  }
-  .c-xs-10{
-    width: 83.3333%;
-  }
-  .c-xs-9{
-    width: 75%;
-  }
-  .c-xs-8{
-    width: 66.6666%;
-  }
-  .c-xs-7{
-    width: 58.3333%;
-  }
-  .c-xs-6{
-    width: 50%;
-  }
-  .c-xs-5{
-    width: 41.6666%;
-  }
-  .c-xs-4{
-    width: 33.3333%;
-  }
-  .c-xs-3{
-    width: 25%;
-  }
-  .c-xs-2{
-    width: 16.6666%;
-  }
-  .c-xs-1{
-    width: 8.3333%;
-  }
+
+.c-xs-12 {
+  width: 100%;
+}
+
+.c-xs-11 {
+  width: 91.6666%;
+}
+
+.c-xs-10 {
+  width: 83.3333%;
+}
+
+.c-xs-9 {
+  width: 75%;
+}
+
+.c-xs-8 {
+  width: 66.6666%;
+}
+
+.c-xs-7 {
+  width: 58.3333%;
+}
+
+.c-xs-6 {
+  width: 50%;
+}
+
+.c-xs-5 {
+  width: 41.6666%;
+}
+
+.c-xs-4 {
+  width: 33.3333%;
+}
+
+.c-xs-3 {
+  width: 25%;
+}
+
+.c-xs-2 {
+  width: 16.6666%;
+}
+
+.c-xs-1 {
+  width: 8.3333%;
+}
+
 /* } */
+
 @media only screen and (max-width: 481px) {
-  .c-sm-12{
+  .c-sm-12 {
     width: 100%;
   }
-  .c-sm-11{
+
+  .c-sm-11 {
     width: 91.6666%;
   }
-  .c-sm-10{
+
+  .c-sm-10 {
     width: 83.3333%;
   }
-  .c-sm-9{
+
+  .c-sm-9 {
     width: 75%;
   }
-  .c-sm-8{
+
+  .c-sm-8 {
     width: 66.6666%;
   }
-  .c-sm-7{
+
+  .c-sm-7 {
     width: 58.3333%;
   }
-  .c-sm-6{
+
+  .c-sm-6 {
     width: 50%;
   }
-  .c-sm-5{
+
+  .c-sm-5 {
     width: 41.6666%;
   }
-  .c-sm-4{
+
+  .c-sm-4 {
     width: 33.3333%;
   }
-  .c-sm-3{
+
+  .c-sm-3 {
     width: 25%;
   }
-  .c-sm-2{
+
+  .c-sm-2 {
     width: 16.6666%;
   }
-  .c-sm-1{
+
+  .c-sm-1 {
     width: 8.3333%;
   }
 }
+
 @media only screen and (max-width: 769px) {
-  .c-md-12{
+  .c-md-12 {
     width: 100%;
   }
-  .c-md-11{
+
+  .c-md-11 {
     width: 91.6666%;
   }
-  .c-md-10{
+
+  .c-md-10 {
     width: 83.3333%;
   }
-  .c-md-9{
+
+  .c-md-9 {
     width: 75%;
   }
-  .c-md-8{
+
+  .c-md-8 {
     width: 66.6666%;
   }
-  .c-md-7{
+
+  .c-md-7 {
     width: 58.3333%;
   }
-  .c-md-6{
+
+  .c-md-6 {
     width: 50%;
   }
-  .c-md-5{
+
+  .c-md-5 {
     width: 41.6666%;
   }
-  .c-md-4{
+
+  .c-md-4 {
     width: 33.3333%;
   }
-  .c-md-3{
+
+  .c-md-3 {
     width: 25%;
   }
-  .c-md-2{
+
+  .c-md-2 {
     width: 16.6666%;
   }
-  .c-md-1{
+
+  .c-md-1 {
     width: 8.3333%;
   }
-
 }
+
 @media only screen and (min-width: 1025px) {
-  .c-lg-12{
+  .c-lg-12 {
     width: 100%;
-  }
-  .c-lg-11{
-    width: 91.6666%;
-  }
-  .c-lg-10{
-    width: 83.3333%;
-  }
-  .c-lg-9{
-    width: 75%;
-  }
-  .c-lg-8{
-    width: 66.6666%;
-  }
-  .c-lg-7{
-    width: 58.3333%;
-  }
-  .c-lg-6{
-    width: 50%;
-  }
-  .c-lg-5{
-    width: 41.6666%;
-  }
-  .c-lg-4{
-    width: 33.3333%;
-  }
-  .c-lg-3{
-    width: 25%;
-  }
-  .c-lg-2{
-    width: 16.6666%;
-  }
-  .c-lg-1{
-    width: 8.3333%;
   }
 
-}
-@media only screen and (min-width: 1281px) {
-  .c-xl-12{
-    width: 100%;
-  }
-  .c-xl-11{
+  .c-lg-11 {
     width: 91.6666%;
   }
-  .c-xl-10{
+
+  .c-lg-10 {
     width: 83.3333%;
   }
-  .c-xl-9{
+
+  .c-lg-9 {
     width: 75%;
   }
-  .c-xl-8{
+
+  .c-lg-8 {
     width: 66.6666%;
   }
-  .c-xl-7{
+
+  .c-lg-7 {
     width: 58.3333%;
   }
-  .c-xl-6{
+
+  .c-lg-6 {
     width: 50%;
   }
-  .c-xl-5{
+
+  .c-lg-5 {
     width: 41.6666%;
   }
-  .c-xl-4{
+
+  .c-lg-4 {
     width: 33.3333%;
   }
-  .c-xl-3{
+
+  .c-lg-3 {
     width: 25%;
   }
-  .c-xl-2{
+
+  .c-lg-2 {
     width: 16.6666%;
   }
-  .c-xl-1{
+
+  .c-lg-1 {
     width: 8.3333%;
   }
 }
+
+@media only screen and (min-width: 1281px) {
+  .c-xl-12 {
+    width: 100%;
+  }
+
+  .c-xl-11 {
+    width: 91.6666%;
+  }
+
+  .c-xl-10 {
+    width: 83.3333%;
+  }
+
+  .c-xl-9 {
+    width: 75%;
+  }
+
+  .c-xl-8 {
+    width: 66.6666%;
+  }
+
+  .c-xl-7 {
+    width: 58.3333%;
+  }
+
+  .c-xl-6 {
+    width: 50%;
+  }
+
+  .c-xl-5 {
+    width: 41.6666%;
+  }
+
+  .c-xl-4 {
+    width: 33.3333%;
+  }
+
+  .c-xl-3 {
+    width: 25%;
+  }
+
+  .c-xl-2 {
+    width: 16.6666%;
+  }
+
+  .c-xl-1 {
+    width: 8.3333%;
+  }
+}
+
