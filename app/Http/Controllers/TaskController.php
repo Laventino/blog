@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Workspace;
+use App\WorkspaceParticipant;
 use App\ListTasks;
 use App\Tasks;
+use App\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -120,6 +122,118 @@ class TaskController extends Controller
         return true;
     }
     
+    public function removeParticipant(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'workspace_id' => 'required',
+            'user_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $obj = json_encode([
+                "state"=>"false"
+            ]);
+            return $obj;
+        }
+        
+        $workspace = Workspace::where("user_id",Auth::id())->where("id",$request->workspace_id)->first();
+        $workspace_participant = WorkspaceParticipant::where("user_id",Auth::id())->where("workspace_id",$request->workspace_id)->first();
+        if($workspace == null && $workspace_participant == null){
+            $obj = json_encode([
+                "state"=>"false"
+            ]);
+            return $obj;
+        }
+
+        $workspace_participant = WorkspaceParticipant::where("workspace_id",$request->workspace_id)->where("user_id",$request->user_id)->where("archive",0)->first();
+        if($workspace_participant == null){
+            $obj = json_encode([
+                "state"=>"false"
+            ]);
+            return $obj;
+        }
+        $workspace_participant->archive = 1;
+        $workspace_participant->save();
+        if($request->user_id == Auth::id()){
+            $obj = json_encode([
+                "state"=>"success",
+                "workspace"=>true
+            ]);
+            return $obj;
+        }
+        $obj = json_encode([
+            "state"=>"success",
+            "workspace"=>false,
+        ]);
+
+        return $obj;
+    }
+    public function getParticipantList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'workspace_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return false;
+        }
+        $workspace = Workspace::where("user_id",Auth::id())->where("id",$request->workspace_id)->first();
+        $workspace_participant = WorkspaceParticipant::where("user_id",Auth::id())->where("workspace_id",$request->workspace_id)->first();
+        if($workspace == null && $workspace_participant == null){
+            return false;
+        }
+        $workspace = Workspace::where("id",$request->workspace_id)->first();
+        $workspace_participant = WorkspaceParticipant::where("workspace_id",$request->workspace_id)->where("archive",0)->get();
+        // $obj = json_encode(["state"=>"success",,"id"=>$user->id]);
+        $arr = array();
+        array_push($arr, [
+            "id"=>$workspace->user[0]->id,
+            "name"=>$workspace->user[0]->name,
+            "owner"=>true,
+        ]);
+        foreach ($workspace_participant as $participant) {
+            array_push($arr, [
+                "id"=>$participant->user[0]->id,
+                "name"=>$participant->user[0]->name,
+                "owner"=>false,
+            ]);
+        }
+        return $arr;
+    }
+    
+    public function inviteParticipant(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'workspace_id' => 'required',
+            'email' => 'required',
+        ]);
+        if ($validator->fails()) {
+            
+            $obj = json_encode(["state"=>"fail" ]);
+            return $obj;
+        }
+        $workspace = Workspace::where("user_id",Auth::id())->where("id",$request->workspace_id)->first();
+        $workspace_participant = WorkspaceParticipant::where("user_id",Auth::id())->where("workspace_id",$request->workspace_id)->first();
+        if($workspace == null && $workspace_participant == null){
+            $obj = json_encode(["state"=>"fail" ]);
+            return $obj;
+        }
+        $user = User::where("email",$request->email)->first();
+        if($user == null){
+            $obj = json_encode(["state"=>"fail" ]);
+            return $obj;
+        }
+        $check_exist = WorkspaceParticipant::where("workspace_id",$request->workspace_id)->where("user_id",$user->id)->where("archive",0)->first();
+        if($check_exist != null){
+            $obj = json_encode(["state"=>"fail" ]);
+            return $obj;
+        }
+        $new_participant = new WorkspaceParticipant;
+        $new_participant->workspace_id = $request->workspace_id;
+        $new_participant->user_id= $user->id;
+        $new_participant->created_at= Carbon::now()->toDateTimeString();
+        $new_participant->save();
+        $obj = json_encode(["state"=>"success","name"=>$user->name,"id"=>$user->id]);
+        return $obj;
+    }
     public function archive(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -136,16 +250,18 @@ class TaskController extends Controller
             $lists = ListTasks::where("workspace_id",$request->workspace_id)->where("id",$request->list_id)->first();
             $lists->archive = 1;
             $lists->save();
+            return true;
         }
-        if(isset($request->task)){
-            $query_task = Tasks::where("id",$request->task)->first();
+        if(isset($request->task_id)){
+            $query_task = Tasks::where("id",$request->task_id)->first();
             $check = ListTasks::where("workspace_id",$request->workspace_id)->where("id",$query_task->list_id)->first();
             if($check  != null){
                 $query_task->archive = 1;
                 $query_task->save();
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     public function changeTitle(Request $request)
@@ -166,7 +282,7 @@ class TaskController extends Controller
             $lists->save();
         }
         if(isset($request->task_title) && isset($request->task_id)){
-            $query_task = Tasks::where("id",$request->task)->first();
+            $query_task = Tasks::where("id",$request->task_id)->first();
             $check = ListTasks::where("workspace_id",$request->workspace_id)->where("id",$query_task->list_id)->first();
             if($check  != null){
                 $query_task->title = $request->task_title;

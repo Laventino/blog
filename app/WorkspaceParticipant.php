@@ -10,8 +10,12 @@ class WorkspaceParticipant extends Model
     protected $fillable = [
         'id', 'workspace_id', 'user_id', "created_at", "updated_at"
     ];
+    public function user()
+    {
+        return $this->hasMany('App\User',"id","user_id")->select('id','name');
+    }
     public function workspace()
     {
-        return $this->belongsTo('App\workspace',"id");
+        return $this->hasMany('App\Workspace',"id","workspace_id");
     }
 }

@@ -14,8 +14,14 @@ class Workspace extends Model
     {
         return $this->hasMany('App\ListTasks',"workspace_id");
     }
+   
     public function workspace_participant()
     {
-        return $this->hasMany('App\WorkspaceParticipant',"workspace_id");
+        return $this->belongsTo('App\WorkspaceParticipant',"workspace_id");
+    }
+
+    public function user()
+    {
+        return $this->hasMany('App\User',"id","user_id")->select('id','name');
     }
 }

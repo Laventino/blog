@@ -50,7 +50,13 @@
   padding-left: 8px;
   padding-right: 8px;
 }
-
+/* margin */
+.mg-r-10{
+  margin-right: 10px;
+}
+.mg-b-10{
+  margin-bottom: 10px;
+}
 /* end general css */
 
 body {

@@ -29,10 +29,20 @@ Route::post('/add-new-list', 'TaskController@addNewList');
 Route::post('/change-list-task-position', 'TaskController@changePosition');
 Route::post('/archive-list-task', 'TaskController@archive');
 Route::post('/change-list-task-title', 'TaskController@changeTitle');
+Route::post('/get-participant-list', 'TaskController@getParticipantList');
+Route::post('/invite-participant', 'TaskController@inviteParticipant');
+Route::post('/remove-participant', 'TaskController@removeParticipant');
 
 // workspace
 Route::post('/create-new-workspace', 'WorkspaceController@createNewWorkspace');
+Route::post('/archive-workspace', 'WorkspaceController@archiveWorkspace');
+Route::post('/edit-workspace', 'WorkspaceController@editWorkspace');
 Route::get('/workspace/{id}', 'WorkspaceController@getWorkspace');
+
+// video
+// Route::get('/videos', 'VideoController@index');
+Route::resource('/videos', 'VideoController');
+Route::resource('/images', 'ImageController');
 
 Route::fallback(function(){
     if (!Auth::user()) {

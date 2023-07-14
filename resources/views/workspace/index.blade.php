@@ -47,9 +47,10 @@
             background-color: #b4b4b424;
             padding: 12px 10px;
             cursor: pointer;
+            position: relative;
         }
 
-        .workspace-page .workspace-card-link{
+        .workspace-page .workspace-card-link {
             text-decoration: none;
             margin: 0 10px 10px 0;
         }
@@ -96,6 +97,30 @@
             justify-content: center;
             align-items: center;
             border-radius: 50%;
+        }
+
+        .workspace-page .workspace-card-link .tool {
+            position: absolute;
+            top: 8px;
+            right: 6px;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 2px;
+            color: white;
+            font-size: 12px;
+            display: none;
+            background-color: #77777755;
+
+        }
+
+        .workspace-page .workspace-card-link:hover .tool {
+            display: flex;
+        }
+
+        .workspace-page .workspace-card-link .tool:hover {
+            background-color: #777777dd;
         }
 
         .workspace-page .workspace-card:hover .add-icon i {
@@ -214,6 +239,7 @@
             background-color: #6e6e6e;
         }
 
+        .add-new-workspace-card-container .body .input-archive,
         .add-new-workspace-card-container .body .input-submit {
             height: 32px;
             min-height: 32px;
@@ -230,12 +256,24 @@
             text-decoration: none;
             margin: 0 10px 24px 10px;
             padding: 4px 12px;
-            background-color: #999999;
             color: white;
             width: calc(100% - 20px);
         }
+        .add-new-workspace-card-container .body .input-submit {
+            background-color: #999999;
+        }
+        .add-new-workspace-card-container .body .input-submit:hover {
+            background-color: #afafaf;
+        }
+        .add-new-workspace-card-container .body .input-archive{
+            text-align: center;
+            background-color: #9d4444;
+        }
+        .add-new-workspace-card-container .body .input-archive:hover{
+            background-color: #b35858;
+        }
     </style>
-    <div class="workspace-page">
+    <div class="workspace-page workspace_page">
         <div class="container">
             <div class="category">
                 Your Workspace
@@ -245,12 +283,12 @@
                 if (isset($workspace)) {
                     $str_workspace = '';
                     foreach ($workspace as $key => $w) {
-                        $str_workspace .= '<a href="/workspace/'.$w->id.'" target="" class="workspace-card-link"><div class="workspace-card"><div class="title">' . $w->title . '</div><div class="description">' . $w->description . '</div></div></a>';
+                        $str_workspace .= '<a href="/workspace/' . $w->id . '" target="" class="workspace-card-link"><div class="workspace-card" workspace-id="' . $w->id . '"><div class="tool tool_"><i class="fa-solid fa-pen"></i></div><div class="title">' . $w->title . '</div><div class="description">'.nl2br($w->description).'</div></div></a>';
                     }
                     echo $str_workspace;
                 }
                 ?>
-                <div class="workspace-card add_new_workspace_card">
+                <div class="workspace-card add_new_workspace_card mg-r-10 mg-b-10">
                     <div class="add-icon">
                         <i class="fa-solid fa-plus"></i>
                     </div>
@@ -260,10 +298,19 @@
                 Participate Workspace
             </div>
             <div class="my-workspace-container">
-                <div class="workspace-card">
+                {{-- <div class="workspace-card">
                     <div class="title">Participate First Workspace</div>
                     <div class="description">This work space is create to test in style and process of javascript.</div>
-                </div>
+                </div> --}}
+                <?php
+                if (isset($workspace_participant)) {
+                    $str_workspace_participant = '';
+                    foreach ($workspace_participant as $key => $w) {
+                        $str_workspace_participant .= '<a href="/workspace/' . $w->workspace[0]->id . '" target="" class="workspace-card-link"><div class="workspace-card" workspace-id="' . $w->workspace[0]->id . '"><div class="tool tool_"><i class="fa-solid fa-pen"></i></div><div class="title">' . $w->workspace[0]->title . '</div><div class="description">'.nl2br($w->workspace[0]->description).'</div></div></a>';
+                    }
+                    echo $str_workspace_participant;
+                }
+                ?>
             </div>
         </div>
     </div>
@@ -310,22 +357,91 @@
                 let title = el.find(".input-text").val();
                 let des = el.find("textarea").val();
                 if (title != "") {
-                    let str_wc = `<a href="#" target="" style="pointer-events: none;" class="workspace-card-link"><div class="workspace-card"><div class="title">${title}</div><div class="description">${des}</div></div></a>`;
+                    let str_wc =
+                        `<a href="#" target="" style="pointer-events: none;" class="workspace-card-link"><div class="workspace-card"  workspace-id=""><div class="tool tool_"><i class="fa-solid fa-pen"></i></div><div class="title">${title}</div><div class="description">${des}</div></div></a>`;
                     let el_wc = $(str_wc);
                     $(".add_new_workspace_card").before(el_wc);
                     ajaxCustom({
                         "title": title,
                         "description": des
                     }, "/create-new-workspace", function(res) {
-                        el_wc.attr("href","/workspace/"+res.id).css("pointer-events","");
+                        el_wc.attr("href", "/workspace/" + res.id).css("pointer-events", "");
+                        el_wc.find("[workspace-id]").attr("workspace-id",res.id);
                     });
-                  
+
                     el.remove();
                 }
             });
             $("body").append(el);
             el.find(".input-text").focus();
         }
+
+        let workspaceTool = (e) => {
+            event.preventDefault();
+            let target_ = $(e.target);
+            let str = `<div class="background-layer">
+                        <div class="add-new-workspace-card-container">
+                            <div class="header">
+                                <div class="title">Create new workspace</div>
+                                <div class="close"><i class="fa-sharp fa-solid fa-xmark"></i></div>
+                            </div>
+                            <div class="body">
+                                <label for="workspace-title">Title</label>
+                                <input class="input-text" id="workspace-title" type="text">
+                                <label for="workspace-description">Description</label>
+                                <textarea name="" id="workspace-description" auto-resize="on" placeholder="Please enter task title..."></textarea>
+                                <input class="input-submit" type="submit" value="Submit">
+                                <input class="input-archive input_archive" type="button" value="Archive">
+                            </div>
+                        </div>
+                    </div>`;
+            let el = $(str);
+            el.find(".close").on("click", function() {
+                el.remove();
+            });
+            el.find(".input-text").val($(e.target).closest("[workspace-id]").find(".title").html().replaceAll("\n", "").replaceAll("<br>", "\n"));
+            el.find("textarea").val($(e.target).closest("[workspace-id]").find(".description").html().replaceAll("\n", "").replaceAll("<br>", "\n"));
+            el.find(".input-submit").on("click", function() {
+                let title = el.find(".input-text").val();
+                let des = el.find("textarea").val();
+                let w_id = target_.closest("[workspace-id]").attr("workspace-id");
+                if (title != "" && w_id!="") {
+                    target_.closest("[workspace-id]").closest("a").find(".title").html(title);
+                    target_.closest("[workspace-id]").closest("a").find(".description").html(des.trim().replaceAll("\n", "<br>"));
+
+                    ajaxCustom({
+                        "title": title,
+                        "description": des,
+                        "workspace_id": w_id,
+                    }, "/edit-workspace", function(res) {
+                    });
+
+                    el.remove();
+                }
+            });
+            el.find(".input_archive").on("click", function() {
+                let w_id = target_.closest("[workspace-id]").attr("workspace-id");
+                if (w_id != "") {
+                    customNotification({
+                        type:"warning",
+                        title: "Warning",
+                        description : "Do you want to delete this workspace",
+                        option :{"Confirm":()=>{
+                            ajaxCustom({
+                                "workspace_id": w_id,
+                            }, "/archive-workspace", function(res) {
+                                target_.closest("[workspace-id]").closest("a").remove();
+                            });
+                            el.remove();
+                        }},
+                    });
+                }
+            });
+            $("body").append(el);
+            el.find(".input-text").focus();
+        }
+        $(document).off("click", ".workspace_page .tool_", workspaceTool);
+        $(document).on("click", ".workspace_page .tool_", workspaceTool);
         $(document).off("click", ".add_new_workspace_card", add_new_workspace_card);
         $(document).on("click", ".add_new_workspace_card", add_new_workspace_card);
     </script>

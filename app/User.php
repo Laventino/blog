@@ -36,4 +36,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function workspace_participant()
+    {
+        return $this->belongsTo('App\WorkspaceParticipant',"id");
+    }
+    public function workspace()
+    {
+        return $this->belongsTo('App\Workspace',"id");
+    }
 }
