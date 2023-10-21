@@ -25,9 +25,10 @@
     <link href="{{ asset('css/icon-font.css') }}" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/font-awsome.css') }}" rel="stylesheet">
-    
+
     <!-- Custom function -->
-    <script src="{{ asset('js/library.js') }}"></script>
+    <script src="{{ asset('js/javascript.js') }}"></script>
+    <script src="{{ asset('js/custom-scroll.js') }}"></script>
 
     @if (Auth::check())
         <!-- Custom function -->

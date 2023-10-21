@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use App\Video;
+use App\Image;
 
 class HomeController extends Controller
 {
@@ -23,6 +25,12 @@ class HomeController extends Controller
     public function index()
     {
         $menu_name = "home";
-        return \View::make('home', compact('menu_name'));
+        $videoCount = Video::get()->count();
+        $imageCount = Image::get()->count();
+        $summary = [
+            'total_video' => $videoCount,
+            'total_image' => $imageCount,
+        ];
+        return \View::make('home', compact('menu_name', 'summary'));
     }
 }

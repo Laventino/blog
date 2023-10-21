@@ -129,8 +129,9 @@
             margin: 4px;
         }
         .box-wrapper a img{
-            width: 300px;
-            /* height: 250px; */
+            width: 280px;
+            object-fit: contain;
+            height: 360px;
         }
         .menu{
             height: 100%;
@@ -196,12 +197,13 @@
                 <a class="element-card" href="/videos">
                     ALL
                 </a>
-                @foreach ($groupMedias as $item)
-                    <a class="element-card" href="/videos/menu/{{$item->name}}">
-                        {{$item->name}}
-                    </a>
-
-                @endforeach
+                @if (isset($groupMedias))
+                    @foreach ($groupMedias as $item)
+                        <a class="element-card" href="/videos/menu/{{$item->name}}">
+                            {{$item->name}}
+                        </a>
+                    @endforeach
+                @endif
             </div>
         </div>
 
@@ -219,7 +221,6 @@
         }
 
         .button-style {
-
             color: white;
             padding: 2px 3px;
         }
@@ -239,38 +240,26 @@
             display: none;
             background-color: #555555;
         }
+        .image-wrapper {
+            margin: 0 2px 4px 2px;
+            background-color: white;
+        }
     </style>
 
     <div class="container">
         <div class="box-wrapper">
         @foreach ($datas as $item)
             <?php
-                if(isset($item->cover_path) && $item->cover_path != '' && $item->cover_path !=null){
-                    $src = URL::to('/') .'/storage/thumbnail/'. $item->cover_path .'.jpg';
+                if(isset($item->manga_images) && count($item->manga_images) && $item->manga_images != '' && $item->manga_images[0] != null){
+                    $src = URL::to('/') .'/storage/videos/PT/manga'. $item->manga_images[0]->path;
                 }else{
                     $src = URL::to('/') .'/assets/image/none-image.png';
                 }
             ?>
-            <a href="/videos/{{$item->id}}" class="box">
+            <a href="/manga/{{$item->id}}" class="box image-wrapper">
                 <img src="{{$src}}" alt="">
-                @if ($item->duration)
-                <div class="duration">{{$item->duration}}</div>
-                @endif
-
                 <div class="option">
-
-                    <?php
-                        $mark = [];
-                        foreach ($item->mark as $key => $value) {
-                            if ($value->status) {
-                                $mark[$value->mark_name] = $value->mark_text;
-                            }
-                        }
-                    ?>
-                    <div class="button-delete button-style video_option_button {{array_key_exists('delete', $mark) ? '' : 'disable'}}" value="delete">D</div>
-                    <div class="button-error button-style video_option_button {{array_key_exists('error', $mark) ? '' : 'disable'}}" value="error">E</div>
-                    <div class="button-duplicate button-style video_option_button {{array_key_exists('duplicate', $mark) ? '' : 'disable'}}" value="duplicate">DP</div>
-                    <div class="button-miss-category button-style video_option_button {{array_key_exists('wrong_category', $mark) ? '' : 'disable'}}" value="wrong_category">MC</div>
+                    <div class="button-miss-category button-style video_option_button" value="wrong_category">{{$item->image_count}}</div>
                 </div>
             </a>
         @endforeach

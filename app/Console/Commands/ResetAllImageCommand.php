@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use File;
 use VideoThumbnail;
 use App\Image;
-use App\GroupMedia;
+use App\Models\GroupMedia;
 use Illuminate\Support\Facades\DB;
 
 class ResetAllImageCommand extends Command
@@ -32,7 +32,7 @@ class ResetAllImageCommand extends Command
      */
     public function handle()
     {
-        $groupMedia = GroupMedia::get();
+        $groupMedia = GroupMedia::where("type","image")->get();
         DB::table('image')->delete();
         DB::statement("ALTER TABLE image AUTO_INCREMENT =  1");
         foreach ($groupMedia as $key => $item) {

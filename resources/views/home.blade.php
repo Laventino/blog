@@ -111,21 +111,16 @@
         <div class="container custome-responsive-container">
             <div class="c-xl-4 c-lg-6 c-md-12 pd-8">
                 <div class="card-1 custome-responsive-container">
-                    <div class="title c-xs-9">Transition</div>
+                    <div class="title c-xs-9">Videos</div>
                     <div class="icon c-xs-3"><i class="fa-solid fa-dollar-sign"></i></div>
-                    <div class="text c-xs-12">3,180.00$</div>
-                    <div class="sub-text c-xs-12">13%&nbsp<div class="up">Up</div>
-                    </div>
+                    <div class="text c-xs-12">{{$summary['total_video']}}</div>
                 </div>
             </div>
             <div class="c-xl-4 c-lg-6 c-md-12 pd-8">
                 <div class="card-2 custome-responsive-container">
-                    <div class="title c-xs-9">New Task</div>
+                    <div class="title c-xs-9">Images</div>
                     <div class="icon c-xs-3"><i class="fa-solid fa-dollar-sign"></i></div>
-                    <div class="text c-xs-12">24&nbsp<div class="category">Tasks</div>
-                    </div>
-                    <div class="sub-text c-xs-12">Total task 51&nbsp<div class="up">Up</div>
-                    </div>
+                    <div class="text c-xs-12">{{$summary['total_image']}}</div>
                 </div>
 
             </div>
@@ -192,7 +187,7 @@
                     let svg_height = height_container < Height_svg + space_bottom + space_top ? (Height_svg +
                         space_bottom + space_top) : height_container;
                     svg_elemment.setAttributeNS(null, "height", svg_height);
-                    // g tag for grouping other tags 
+                    // g tag for grouping other tags
 
                     const s_card = document.createElement("section");
                     s_card.id = "graph-card";
@@ -346,7 +341,7 @@
                     let svg_height = height_container < Height_svg + space_bottom + space_top ? (Height_svg +
                         space_bottom + space_top) : height_container;
                     svg_elemment.setAttributeNS(null, "height", svg_height);
-                    // g tag for grouping other tags 
+                    // g tag for grouping other tags
 
                     let s_card = document.createElement("section");
                     s_card.id = "graph-card";

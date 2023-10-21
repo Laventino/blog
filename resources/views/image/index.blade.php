@@ -235,7 +235,6 @@
     function openImageWrapper(id){
         $(".image-wrapper.open").removeClass("open");
         $("#w"+id).addClass("open");
-        console.log(id)
     }
 </script>
 </html>

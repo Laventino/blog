@@ -31,7 +31,7 @@ class ResetAllVideoCommand extends Command
      */
     public function handle()
     {
-        $path = storage_path() . "/app/public/videos";
+        $path = storage_path() . "/app/public/videos/video";
         $arrPath = array_unique($this->looping($path));
         $this->renewVideoPath($arrPath);
         $this->info("success");
@@ -88,10 +88,16 @@ class ResetAllVideoCommand extends Command
                 );
             }
 
+            $duration = null;
+            if(array_key_exists('playtime_string', $video_file)){
+                $duration = $video_file['playtime_string'];
+            }
+
             $arr[] = [
                 'name' => $name,
                 'path' => $value,
                 'extension' => $extension,
+                'duration' => $duration,
                 'cover_path' => $cover_path
             ];
         }

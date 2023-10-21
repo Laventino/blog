@@ -44,6 +44,7 @@ class CheckUpdateVideo extends Command
         $path = storage_path() . "/app/public/videos";
         $arr_video_path = array_unique($this->looping($path));
         $this->updateVideoPath($arr_video_path);
+        $this->removeInvalidVideoPath();
         $this->info("success");
     }
 
@@ -76,11 +77,17 @@ class CheckUpdateVideo extends Command
                         $height = 480
                     );
                 }
+
+                $duration = null;
+                if(array_key_exists('playtime_string', $video_file)){
+                    $duration = $video_file['playtime_string'];
+                }
                 $nextId++;
                 $arr[] = [
                     'name' => $name,
                     'path' => $value,
                     'extension' => $extension,
+                    'duration' => $duration,
                     'cover_path' => $cover_path
                 ];
             }
@@ -113,5 +120,15 @@ class CheckUpdateVideo extends Command
         }
         $arr = array_merge($arr, $arr_in_file);
         return $arr;
+    }
+
+    public function removeInvalidVideoPath() {
+        $videos = Video::all();
+        foreach($videos as $video) {
+            $videoPath = storage_path().'/app/public/'.$video->path;
+            if (!file_exists($videoPath)) {
+                Video::delete($video->id);
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
+use App\Models\GroupMedia;
 
 class VideoController extends Controller
 {
@@ -22,8 +23,30 @@ class VideoController extends Controller
 
     public function index()
     {
-        $datas = Video::where("extension","mp4")->paginate(30);
-        return \View::make('video.index', compact('datas'));
+        $datas = Video::where("extension","mp4")
+            ->orderBy('id','desc')
+            ->paginate(30);
+
+        $groupMedias = GroupMedia::where("type","video")
+            ->get();
+        return \View::make('video.index', compact('datas','groupMedias'));
+    }
+
+    public function getByMenu($menu)
+    {
+
+        $groupMedias = GroupMedia::where("name", $menu)
+            ->first();
+        $datas = Video::where("extension","mp4")
+            ->when($menu , function($query) use ($groupMedias) {
+                $query->where('path', 'like', $groupMedias->path . '%');
+            })
+            ->orderBy('id','desc')
+            ->paginate(30);
+
+        $groupMedias = GroupMedia::where("type","video")
+            ->get();
+        return \View::make('video.index', compact('datas','groupMedias'));
     }
 
     public function create()
@@ -41,7 +64,7 @@ class VideoController extends Controller
     {
         $prev = Video::where("extension","mp4")->where('id','<',$id)->orderBy('id','DESC')->first();
         $next = Video::where("extension","mp4")->where('id','>',$id)->first();
-        $datas = Video::where("extension","mp4")->where('id','>',$id)->paginate(15);
+        $datas = Video::where("extension","mp4")->where('id','<',$id)->orderBy('id', 'desc')->paginate(15);
         $data = Video::find($id);
         return \View::make('video.show', compact(['data','prev','next','datas']));
     }

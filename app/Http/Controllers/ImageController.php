@@ -5,7 +5,7 @@ use App\Workspace;
 use App\ListTasks;
 use App\Tasks;
 use App\Image;
-use App\GroupMedia;
+use App\Models\GroupMedia;
 use App\WorkspaceParticipant;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;

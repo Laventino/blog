@@ -135,22 +135,16 @@
         }
 
         .box-wrapper {
+            width: 100%;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
         }
-
-        .box-wrapper a {
-            display: flex;
-            /* width: 33.3333%; */
-            /* height: 100%; */
-            padding: 4px;
+        .box-wrapper img {
+            display: block;
+            width: 100%;
         }
 
-        .box-wrapper a img {
-            width: 300px;
-            /* height: 250px; */
-        }
 
 
         video {
@@ -242,70 +236,22 @@
         <div class="back">
             <a href="/videos">Back</a>
         </div>
-        <div class="pagination-top">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item" aria-disabled="true" aria-label="« Previous">
-                        <a class="page-link" {{(!$prev && 'disable')}} href="{{ '/videos/' . ($next != null ? $next->id : '') }}" rel="next"
-                            aria-label="Next »">‹</a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" {{(!$next && 'disable')}} href="{{ '/videos/' . ($prev != null ? $prev->id : '') }}" rel="next"
-                            aria-label="Next »">›</a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
     </div>
 
     <div class="container">
-        <video controls id="{{ $data ? $data->id : ''}}" class="main_video">
-            <source src="{{ $data ? '/storage' . $data->path : ''}}" type="video/mp4">
-        </video>
-
-        <div class="section_detail">
-            <div class="info">
-                <div class="name text">{{$data->name}}</div>
-                <div class="duration text">Duration: {{$data->duration ? $data->duration : 'unable to calculate'}}</div>
-                <div class="path text">PATH: {{$data->path}}</div>
-            </div>
-            <div class="option">
-
-                <?php
-                    $mark = [];
-                    foreach ($data->mark as $key => $value) {
-                        if ($value->status) {
-                            $mark[$value->mark_name] = $value->mark_text;
-                        }
-                    }
-                ?>
-                <div class="button-delete button-style video_option_button {{array_key_exists('delete', $mark) ? '' : 'disable'}}" value="delete">Delete</div>
-                <div class="button-error button-style video_option_button {{array_key_exists('error', $mark) ? '' : 'disable'}}" value="error">Error</div>
-                <div class="button-duplicate button-style video_option_button {{array_key_exists('duplicate', $mark) ? '' : 'disable'}}" value="duplicate">Duplicate</div>
-                <div class="button-miss-category button-style video_option_button {{array_key_exists('wrong_category', $mark) ? '' : 'disable'}}" value="wrong_category">Miss Category</div>
-            </div>
-        </div>
         <div class="box-wrapper">
-            @foreach ($datas as $item)
+            @foreach ($data as $item)
                 <?php
-
-                // ;public_path('storage/thumbnail/')
-                    if(isset($item->cover_path)){
-                        $src = URL::to('/') .'/storage/thumbnail/'. $item->cover_path .'.jpg';
+                    if(isset($item->path)){
+                        $src = URL::to('/') .'/storage/videos/PT/manga/'. $item->path;
                     }else{
                         $src = URL::to('/') .'/assets/image/none-image.png';
                     }
                 ?>
-                {{-- <p>This is user {{ $user->id }}</p> --}}
-                <a href="/videos/{{$item->id}}" class="box">
-                    <img src="{{$src}}" alt="">
-                </a>
-
+                <img src="{{$src}}" alt="">
+                    
             @endforeach
         </div>
-    </div>
-    <div class="pagination-bottom">
-        {{$datas->links()}}
     </div>
 
     <script>

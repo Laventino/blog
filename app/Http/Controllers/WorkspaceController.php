@@ -5,6 +5,8 @@ use App\Workspace;
 use App\ListTasks;
 use App\Tasks;
 use App\WorkspaceParticipant;
+use App\MarkCategory;
+use App\Mark;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +31,7 @@ class WorkspaceController extends Controller
         return \View::make('workspace.index', compact('menu_name','workspace','workspace_participant'));
     }
 
-    
+
     public function createNewWorkspace(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -49,10 +51,10 @@ class WorkspaceController extends Controller
         // $Workspace_participant->workspace_id = $workspace->id;
         // $Workspace_participant->created_at= Carbon::now()->toDateTimeString();
         // $Workspace_participant->save();
-        
+
         return $workspace;
     }
-    
+
     public function archiveWorkspace(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -87,7 +89,31 @@ class WorkspaceController extends Controller
         $workspace->save();
         return $workspace;
     }
-    
+
+    public function statusUpdate(Request $request)
+    {
+        $id = $request->id;
+
+        $categoryType = MarkCategory::where('name', $request->status)->first();
+        $mark = Mark::where([
+            'item_id' => (int) $id,
+            'type' => $categoryType->id
+            ])->first();
+        if ($mark) {
+            $mark->update([
+                'status' => !$mark->status
+            ]);
+        } else {
+            Mark::create([
+                "category"      => "video",
+                "item_id"       => $id,
+                "type"          => $categoryType->id,
+                'status'        => 1
+            ]);
+        }
+        return $mark ? $mark->status : 1;
+    }
+
     public function getWorkspace($id)
     {
         $menu_name = "workspace";
@@ -106,12 +132,12 @@ class WorkspaceController extends Controller
         //
     }
 
-   
+
     public function store(Request $request)
     {
     }
 
- 
+
     public function show($id)
     {
         //

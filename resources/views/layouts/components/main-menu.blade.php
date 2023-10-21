@@ -115,9 +115,16 @@ $menu_name = isset($menu_name) ? $menu_name : '';
                         <i class="icon-task icon-menu"></i>Image
                     </li>
                 </a>
-                <li class="first-dc {{ \AppHelper::isMenuActive('setting', $menu_name) }}">
-                    <i class="icon-setting icon-menu"></i>Setting
-                </li>
+                <a href="{{ url('/manga') }}" class="menu-link">
+                    <li class="first-dc {{ \AppHelper::isMenuActive('manga', $menu_name) }}">
+                        <i class="icon-task icon-menu"></i>Manga
+                    </li>
+                </a>
+                <a href="{{ url('/setting') }}" class="menu-link">
+                    <li class="first-dc {{ \AppHelper::isMenuActive('setting', $menu_name) }}">
+                        <i class="icon-task icon-menu"></i>Setting
+                    </li>
+                </a>
             </div>
         </div>
 

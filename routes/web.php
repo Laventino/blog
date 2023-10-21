@@ -3,6 +3,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoggingController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\TikTokController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,6 +34,10 @@ Route::post('/get-participant-list', 'TaskController@getParticipantList');
 Route::post('/invite-participant', 'TaskController@inviteParticipant');
 Route::post('/remove-participant', 'TaskController@removeParticipant');
 
+// setting
+Route::get('/setting', 'SettingController@index')->name('setting');
+Route::post('/setting/reset/medias', 'SettingController@resetMedias')->name('setting');
+
 // workspace
 Route::post('/create-new-workspace', 'WorkspaceController@createNewWorkspace');
 Route::post('/archive-workspace', 'WorkspaceController@archiveWorkspace');
@@ -41,8 +46,16 @@ Route::get('/workspace/{id}', 'WorkspaceController@getWorkspace');
 
 // video
 // Route::get('/videos', 'VideoController@index');
+Route::get('/videos/menu/{menu}', 'VideoController@getByMenu');
 Route::resource('/videos', 'VideoController');
+Route::resource('/manga', 'MangaController');
+
 Route::resource('/images', 'ImageController');
+Route::post('v1/video/status/update', 'WorkspaceController@statusUpdate');
+
+
+
+Route::get('/download-tiktok/{videoId}', [TikTokController::class, 'download'])->name('tiktok.download');
 
 Route::fallback(function(){
     if (!Auth::user()) {
