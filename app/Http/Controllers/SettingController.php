@@ -32,11 +32,13 @@ class SettingController extends Controller
 
     public function resetMedias(Request $request)
     {
-        $mediaIds = $request->get('media_ids');
-        $groupMedias = GroupMedia::whereIn('id', $mediaIds)->get();
-        foreach ($groupMedias as $key => $value) {
-            dispatch(new ResetVideo($value));
-        }
         return response()->json([], 200);
+
+        // $mediaIds = $request->get('media_ids');
+        // $groupMedias = GroupMedia::whereIn('id', $mediaIds)->get();
+        // foreach ($groupMedias as $key => $value) {
+        //     dispatch(new ResetVideo($value));
+        // }
+
     }
 }

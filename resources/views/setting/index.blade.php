@@ -12,6 +12,7 @@
             width: calc(100vw - var(--menu-width));
             margin: var(--nav-height) 0 0 var(--menu-width);
             overflow: auto;
+            top:0;
         }
 
         .setting-page .container {
@@ -83,17 +84,33 @@
             });
         }
         let mediaCheckBox = $('.media_checkbox');
+        let isProccess = false;
         $('.reset_button').on('click', function(){
             var checkedCheckboxNames = [];
-            $('.media_checkbox[type="checkbox"]:checked').each(function() {
-                var attributeName = $(this).attr('name');
-                checkedCheckboxNames.push(attributeName);
-            });
-            ajaxCustom({
-                "media_ids": checkedCheckboxNames,
-            }, '/setting/reset/medias', function(res) {
-                console.log(res)
-            });
+            let _this = $(this);
+            _this.html('LOADING...');
+            if (isProccess == false) {
+                isProccess = true;
+                $('.media_checkbox[type="checkbox"]:checked').each(function() {
+                    var attributeName = $(this).attr('name');
+                    checkedCheckboxNames.push(attributeName);
+                });
+                if (checkedCheckboxNames.length > 0) {
+                    ajaxCustom({
+                        "media_ids": checkedCheckboxNames,
+                    }, '/setting/reset/medias', function(res) {
+                        console.log(res)
+                        _this.html('RESET');
+                        isProccess = false;
+                        $('.media_checkbox[type="checkbox"]:checked').each(function() {
+                            $(this).prop('checked', false);
+                        });
+                    });
+                } else {
+                    _this.html('RESET');
+                        isProccess = false;
+                }
+            }
         })
     </script>
 @endsection
