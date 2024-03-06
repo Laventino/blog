@@ -50,10 +50,13 @@ Route::get('/videos/menu/{menu}', 'VideoController@getByMenu');
 Route::resource('/videos', 'VideoController');
 Route::resource('/manga', 'MangaController');
 
+Route::post('manga/trash', 'MangaController@trash');
+
 Route::resource('/images', 'ImageController');
 Route::post('v1/video/status/update', 'WorkspaceController@statusUpdate');
 
-
+Route::resource('/download-image', 'DownloadImageController');
+Route::post('/download-image/url', 'DownloadImageController@downloadImage');
 
 Route::get('/download-tiktok/{videoId}', [TikTokController::class, 'download'])->name('tiktok.download');
 

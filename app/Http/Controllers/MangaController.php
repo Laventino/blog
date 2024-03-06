@@ -18,6 +18,14 @@ class MangaController extends Controller
         return \View::make('manga.index', compact('datas'));
     }
 
+    public function trash(Request $request) 
+    {
+        $storagePath = storage_path() .'\app\public\videos\PT\manga';
+        $manga = Manga::find($request->get('id'));
+        // rename($source, $destination)
+        // return $request->get('id');
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -48,8 +56,7 @@ class MangaController extends Controller
     public function show($id)
     {
         $data = MangaImage::where('manga_id',$id)->orderByRaw("CASE WHEN name REGEXP '^[a-zA-Z]' THEN 1 ELSE 0 END ASC, CAST(name AS UNSIGNED) ASC")->get();
-        
-        return \View::make('manga.show', compact(['data']));
+        return \View::make('manga.show', compact(['data', 'id']));
     }
 
     /**

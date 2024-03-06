@@ -12,6 +12,7 @@
             background-color: #242424;
         }
         .nav{
+            z-index: 100000;
             background-color: #323232;
             height: 42px;
             width: 100%;
@@ -162,7 +163,7 @@
             display: none;
         }
         .image-wrapper.open{
-            display: block;
+            display: grid;
         }
         .image-wrapper img{
             width: 100%;
@@ -182,6 +183,76 @@
         .image-card .name{
             z-index: 1;
         }
+        /* menu */
+        .menu{
+            height: 100%;
+            position: relative;
+        }
+        .menu .title{
+            padding: 0 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            width: 100px;
+            background-color: #424242;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            position: relative;
+        }
+        .drop-card{
+            background-color: #424242;
+            width: 100%;
+            position: absolute;
+            top: 100%;
+            display: none;
+            max-height: calc(100vh - 100px);
+            overflow: auto;
+        }
+        .drop-card.show{
+            display: grid;
+        }
+        .drop-card .element-card{
+            height: 42px;
+            display: flex;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: 'Courier New', Courier, monospace;
+            justify-content: center;
+        }
+        .drop-card .element-card:hover{
+            background-color: #525252;
+        }
+        /* end menu */
+        
+        /* grid container */
+        .image-container .image-wrapper{
+            /* display: grid; */
+        }
+        .image-container[grid='full'] .image-wrapper{
+        }
+        .image-container[grid='single'] .image-wrapper{
+            justify-items: center;
+        }
+        .image-container[grid='single'] .image-wrapper img{
+            height: calc(100vh - 42px);    
+            width: auto;
+        }
+        .image-container[grid='grid-2'] .image-wrapper{
+            grid-template-columns: auto auto;
+        }
+        .image-container[grid='grid-4'] .image-wrapper{
+            grid-template-columns: auto auto auto auto;
+        }
+        .image-container[grid='grid-6'] .image-wrapper{
+            grid-template-columns: auto auto auto auto auto auto;
+        }
+        .image-container[grid='grid-8'] .image-wrapper{
+            grid-template-columns: auto auto auto auto auto auto auto auto;
+        }
     </style>
 </head>
 <body>
@@ -189,7 +260,29 @@
         <div class="back">
             <a href="/home">Back</a>
         </div>
-
+        <div class="menu">
+            <div class="title">FILE</div>
+            <div class="drop-card">
+                <div class="element-card element_card" value="full">
+                    Full
+                </div>
+                <div class="element-card element_card" value="single">
+                    Single
+                </div>
+                <div class="element-card element_card" value="grid-2">
+                    2X
+                </div>
+                <div class="element-card element_card" value="grid-4">
+                    4X
+                </div>
+                <div class="element-card element_card" value="grid-6">
+                    6X
+                </div>
+                <div class="element-card element_card" value="grid-8">
+                    8X
+                </div>
+            </div>
+        </div>
         <div class="pagination-top">
             {{-- {{$datas->links()}} --}}
         </div>
@@ -216,7 +309,7 @@
             </div>
 
         @endforeach
-            <div class="image-container">
+            <div class="image-container image_container">
                 @foreach ($datas as $item)
                     <div class="image-wrapper" id = "w{{$item->id}}">
                     @foreach ($item->image as $i)
@@ -236,5 +329,24 @@
         $(".image-wrapper.open").removeClass("open");
         $("#w"+id).addClass("open");
     }
+    
+        // setCookie("video", window.location.pathname + window.location.search, 30)
+
+    $(".element_card").on("click", function(){
+        let value = $(this).attr('value')
+        $(".image_container").attr("grid", value);
+        $(".menu .drop-card").removeClass("show");
+    })
+    
+    $(".menu .title").on("click", function(){
+        $(".menu .drop-card").toggleClass("show");
+    })
+
+    $(document).on("click", function(e){
+        if (!$(e.target).closest(".menu").length) {
+            $(".menu .drop-card").removeClass("show");
+        }
+    })
+    
 </script>
 </html>

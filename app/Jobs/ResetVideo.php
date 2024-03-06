@@ -7,9 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 use App\Video;
 use VideoThumbnail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 
 class ResetVideo implements ShouldQueue
 {
@@ -49,7 +51,7 @@ class ResetVideo implements ShouldQueue
         
         $path = storage_path() . "/app/public" . $this->groupMedias->path;
         $arrPath = array_unique($this->looping($path));
-        $this->renewVideoPath($arrPath);
+        $this->renewVideoPath($arrPath, $this->groupMedias->slug, $this->groupMedias->path);
     }
 
     public function looping($path){
@@ -72,12 +74,15 @@ class ResetVideo implements ShouldQueue
         return $arr;
     }
 
-    public function renewVideoPath($arrPath){
-        $thumbnail_path   = storage_path().'\app\public\thumbnail';
+    public function renewVideoPath($arrPath, $slug, $filePath){
+        $thumbnail_path   = storage_path().'\app\public\thumbnail'. $filePath;
+        if (!File::exists($thumbnail_path)) {
+            File::makeDirectory($thumbnail_path, 0755, true);
+        }
 
         foreach ($arrPath as $key => $value) {
             $extension = pathinfo(storage_path($value), PATHINFO_EXTENSION);
-            $thumbnail_image  = ($key + 1) . ".jpg";
+            $thumbnail_image  = $slug . '_' . ($key + 1) . ".jpg";
             $path = storage_path('app\public'.$value);
             $getID3 = new \getID3;
             $video_file = $getID3->analyze($path);
@@ -85,8 +90,13 @@ class ResetVideo implements ShouldQueue
             $name = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_BASENAME);
 
             if(!isset($video_file['error']) ){
-                $cover_path = $key + 1;
-                $time_to_image    = floor(($video_file['playtime_seconds'])/2);
+                $cover_path = $slug . '_' . ($key + 1);
+                $time_to_image    = $video_file['playtime_seconds'];
+                if ($time_to_image < 120) {
+                    $time_to_image    = floor(($time_to_image)/2);
+                } else {
+                    $time_to_image = 60;
+                }
                 $videoUrl = storage_path('app\public'.$value);
                 VideoThumbnail::createThumbnail(
                     $videoUrl,
@@ -108,7 +118,7 @@ class ResetVideo implements ShouldQueue
                 'path' => $value,
                 'extension' => $extension,
                 'duration' => $duration,
-                'cover_path' => $cover_path
+                'cover_path' => $filePath . '/' . $cover_path,
             ]);
         }
     }

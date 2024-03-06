@@ -17,7 +17,8 @@
         "laravel/tinker": "^2.5",
         "laravel/ui": "2.4",
         "pawlox/video-thumbnail": "*",
-        "ssovit/tiktok-api": "^2.0"
+        "ssovit/tiktok-api": "^2.0",
+        "symfony/dom-crawler": "^5.4"
     },
     "require-dev": {
         "facade/ignition": "^2.0",

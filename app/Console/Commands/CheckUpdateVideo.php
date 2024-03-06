@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use File;
 use VideoThumbnail;
 use App\Video;
 use Illuminate\Support\Facades\DB;

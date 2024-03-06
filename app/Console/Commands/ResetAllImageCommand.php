@@ -66,6 +66,10 @@ class ResetAllImageCommand extends Command
     public function renewImagePath($arrPath, $groupId){
         $arr = [];
         foreach ($arrPath as $key => $value) {
+            $explode = explode('/', $value);
+            if (count($explode) > 6) {
+                $type = $explode[5];
+            }
             $extension = pathinfo(storage_path($value), PATHINFO_EXTENSION);
             $path = storage_path('app\public'.$value);
             $name = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_BASENAME);
@@ -73,7 +77,8 @@ class ResetAllImageCommand extends Command
                 'name' => $name,
                 'path' => $value,
                 'extension' => $extension,
-                'group_id' => $groupId
+                'group_id' => $groupId,
+                'type' => $type ?? null
             ];
         }
         Image::insert($arr);

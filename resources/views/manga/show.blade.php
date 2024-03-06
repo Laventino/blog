@@ -49,6 +49,25 @@
             height: 100%;
         }
 
+        .trash {
+            height: 100%;
+            width: 100px;
+            background-color: #424242;
+            color: white;
+            font-family: 'Courier New', Courier, monospace;
+            cursor: pointer;
+            
+        }
+        .trash .text {
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            width: 100%;
+            height: 100%;
+        }
+
         .back:hover {
             background-color: #525252;
         }
@@ -228,13 +247,64 @@
         .section_detail .button-style.loading {
             background-color: #000000;
         }
+        
+        .confirm-card{
+            position: absolute;
+            z-index: 99999;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #00000077;
+            justify-content: center;
+            align-items: center;
+            display: none;
+        }
+        .confirm-card.show{
+            display: flex;
+        }
+        .confirm-card .card{
+            background-color: white;
+            border-radius: 2px;
+            min-width: 120px;
+            min-height: 60px;
+        }
+        .confirm-card .header{
+            border-bottom: 1px solid #ccc;
+            padding: 2px 3px;
+        }
+        .confirm-card .body{
+            width: 240px;
+            position: relative;
+            height: 42px;
+            padding: 5px 5px;
+            display: flex;
+            align-items: center;
+        }
+        .confirm-card .body .text-wrapper{
+            display: flex;
+            align-items: center;
+        }
+        .confirm-card .footer{
+            padding: 2px 3px;
+            display: flex;
+            flex-direction: row-reverse;
+        }
+        .confirm-card .footer .button-container button{
+            margin-left: 5px;
+        }
     </style>
 </head>
 
 <body>
     <div class="nav">
         <div class="back">
-            <a href="/videos">Back</a>
+            <a href="/manga" id="back">Back</a>
+        </div>
+        <div class="trash" value="{{$id ?? null}}">
+            <div class="text">
+                Trash
+            </div>
         </div>
     </div>
 
@@ -253,6 +323,24 @@
             @endforeach
         </div>
     </div>
+    <div class="confirm-card">
+        <div class="card">
+            <div class="header">Confirm</div>
+            <div class="body">
+                <div class="text-wrapper">
+                    Move to Trash
+                </div>
+            </div>
+            <div class="footer">
+                <div class="wrapper-box">
+                    <div class="button-container">
+                        <button id="cancel">Cancel</button>
+                        <button id="confirm">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         let video = getCookie("video");
@@ -268,6 +356,13 @@
         //     });
         // });
 
+        function openModal(){
+            $(".confirm-card").addClass("show");
+        }
+        
+        function closeModal(){
+            $(".confirm-card").removeClass("show");
+        }
 
         $.ajaxSetup({
             headers: {
@@ -288,24 +383,20 @@
             });
         }
 
-        $(".video_option_button").click(function(){
+        $("#cancel").click(function(){
+            closeModal();
+        });
+        let mangaId = null;
+        $(".trash").click(function(){
+            mangaId = $(this).attr("value");
+            openModal();
+        });
+        $("#confirm").click(function(){
             let _this = $(this)
-            let status = $(this).attr("value");
-            if (_this.hasClass("loading")) {
-                return false;
-            }
-            _this.addClass("loading");
             ajaxCustom({
-                "status": status,
-                "id": id
-            }, "/v1/video/status/update", function(res) {
-                console.log(res);
-                if (res) {
-                    _this.removeClass("disable");
-                } else {
-                    _this.addClass("disable");
-                }
-                _this.removeClass("loading");
+                "id": mangaId
+            }, "/manga/trash", function(res) {
+                // window.location.href = "/manga";
             });
         });
     </script>

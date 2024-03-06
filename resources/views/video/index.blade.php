@@ -155,6 +155,8 @@
             position: absolute;
             top: 100%;
             display: none;
+            max-height: calc(100vh - 100px);
+            overflow: auto;
         }
         .drop-card.show{
             display: block;

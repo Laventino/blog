@@ -4,15 +4,15 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Image extends Model
+class DownloadImage extends Model
 {
-    protected $table = 'image';
+    protected $table = 'download_images';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'path', 'extension', 'cover_path', 'group_id', 'type',
+        'id', 'title', 'url', 'status', 'total', 'total', 'completed',
     ];
 }

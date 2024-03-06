@@ -14,7 +14,7 @@ class GroupMedia extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'type', 'name', 'path', 'cover_path'
+        'id', 'type', 'slug', 'name', 'path', 'cover_path',
     ];
 
     public function image()
