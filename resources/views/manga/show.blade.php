@@ -249,12 +249,14 @@
         }
         
         .confirm-card{
-            position: absolute;
+            position: fixed;
             z-index: 99999;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
+            width: 100%;
+            height: 100%;
             background-color: #00000077;
             justify-content: center;
             align-items: center;
@@ -262,6 +264,7 @@
         }
         .confirm-card.show{
             display: flex;
+            po
         }
         .confirm-card .card{
             background-color: white;
@@ -309,18 +312,7 @@
     </div>
 
     <div class="container">
-        <div class="box-wrapper">
-            @foreach ($data as $item)
-                <?php
-                    if(isset($item->path)){
-                        $src = URL::to('/') .'/storage/videos/PT/manga/'. $item->path;
-                    }else{
-                        $src = URL::to('/') .'/assets/image/none-image.png';
-                    }
-                ?>
-                <img src="{{$src}}" alt="">
-                    
-            @endforeach
+        <div class="box-wrapper" id="image-container">
         </div>
     </div>
     <div class="confirm-card">
@@ -363,6 +355,10 @@
         function closeModal(){
             $(".confirm-card").removeClass("show");
         }
+        function back(){
+            var back = document.getElementById("back");
+            back.click();
+        }
 
         $.ajaxSetup({
             headers: {
@@ -396,9 +392,47 @@
             ajaxCustom({
                 "id": mangaId
             }, "/manga/trash", function(res) {
-                // window.location.href = "/manga";
+                closeModal();
+                back();
             });
         });
+        
+        const imageContainer = document.getElementById('image-container');
+        function loadImage(src) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+
+                image.addEventListener('load', () => {
+                    imageContainer.appendChild(image);
+                    resolve();
+                });
+
+                image.addEventListener('error', () => {
+                    reject();
+                });
+
+                image.src = src;
+            });
+        }
+
+        async function loadImagesSequentially(imageSources) {
+            for (const src of imageSources) {
+                try {
+                    await loadImage(src);
+                } catch {
+                    console.log(`Error occurred while loading image '${src}'.`);
+                }
+            }
+        }
+        // Example usage:
+        @php
+            $quotedArray = array_map(function($item) {
+                return "'" . URL::to('/') . '/storage/videos/PT/manga/' . $item . "'";
+            }, $path);
+            $string = implode(',', $quotedArray);
+        @endphp
+        const imageSources = [{!! $string !!}];
+        loadImagesSequentially(imageSources);
     </script>
 </body>
 

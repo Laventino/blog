@@ -56,7 +56,11 @@ class EHentaiDownloadImage implements ShouldQueue
 
         $htmlListPage = Http::withOptions(['verify' => false])->get($baseUrl . '/?nw=always');
         preg_match('/<h1\s+id="gn">(.*?)<\/h1>/', $htmlListPage, $matchesTile);
-        $title = isset($matchesTile[1]) ? $matchesTile[1] : '';
+        $titleRaw = isset($matchesTile[1]) ? $matchesTile[1] : '';
+        // filter symbol can not use on folder
+        $title = str_replace(array(":", " |", "|", "?", ",", "."), "", urldecode(html_entity_decode($titleRaw)));
+        // Manually decode the HTML entity
+        $title = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title);
 
         $startPos = strpos($htmlListPage, '<p class="gpc">');
         $endPos = strpos($htmlListPage, '</p>', $startPos);
@@ -71,7 +75,8 @@ class EHentaiDownloadImage implements ShouldQueue
             $downloadIdImage->update([
                 'url' => $baseUrl,
                 'title' => $title,
-                'total' => $totalImage
+                'total' => $totalImage,
+                'status' => 2
             ]);
         }
         $storagePath = storage_path('/app/public/videos/PT/manga/e/' . $title);
@@ -109,7 +114,7 @@ class EHentaiDownloadImage implements ShouldQueue
             $linkImagePages = array_merge($linkImagePages, $matchesImagePage[2]);
         }
         
-        $completed_count = 0;
+        $completed_count = $skip ?? 0;
 
         foreach ($linkImagePages as $key => $link) {
             if ($skip && $key < $skip) {
@@ -133,6 +138,10 @@ class EHentaiDownloadImage implements ShouldQueue
                 }
                 $isSuccess = true;
                 $completed_count++;
+                
+                $downloadIdImage->update([
+                    'completed' => $completed_count,
+                ]);
             } catch (\Throwable $th) {
                 logger($th);
                 $imageData = false;

@@ -37,6 +37,9 @@ Route::post('/remove-participant', 'TaskController@removeParticipant');
 // setting
 Route::get('/setting', 'SettingController@index')->name('setting');
 Route::post('/setting/reset/medias', 'SettingController@resetMedias')->name('setting');
+Route::post('/setting/reset/manga', 'SettingController@resetManga')->name('setting');
+Route::post('/setting/convert/video', 'SettingController@convertVideo')->name('convert-video');
+Route::post('/setting/merge/video', 'SettingController@mergeVideo')->name('convert-video');
 
 // workspace
 Route::post('/create-new-workspace', 'WorkspaceController@createNewWorkspace');
@@ -57,6 +60,8 @@ Route::post('v1/video/status/update', 'WorkspaceController@statusUpdate');
 
 Route::resource('/download-image', 'DownloadImageController');
 Route::post('/download-image/url', 'DownloadImageController@downloadImage');
+Route::post('/download-image/retry', 'DownloadImageController@retryDownload');
+Route::post('/download-image/delete', 'DownloadImageController@deleteDownload');
 
 Route::get('/download-tiktok/{videoId}', [TikTokController::class, 'download'])->name('tiktok.download');
 

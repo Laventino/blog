@@ -253,6 +253,9 @@
         .image-container[grid='grid-8'] .image-wrapper{
             grid-template-columns: auto auto auto auto auto auto auto auto;
         }
+        .holder-hid {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -311,9 +314,9 @@
         @endforeach
             <div class="image-container image_container">
                 @foreach ($datas as $item)
-                    <div class="image-wrapper" id = "w{{$item->id}}">
+                    <div class="image-wrapper" id="w{{$item->id}}">
                     @foreach ($item->image as $i)
-                        <img src="{{URL::to('/') .'/storage'}}{{$i->path}}" alt="">
+                        <img class="holder-hid" src="{{URL::to('/') .'/storage/videos/PT/fake/'}}{{"default.jpg"}}" src-holder="{{URL::to('/') .'/storage'}}{{$i->path}}" alt="">
                     @endforeach
                     </div>
                 @endforeach
@@ -325,9 +328,21 @@
     </div>
 </body>
 <script>
+    function loadContinuely() {
+        let temp = $(".image-wrapper.open img.holder-hid").first();
+        if (temp.length > 0) {
+            var newSrc = temp.attr('src-holder');
+            temp.attr('src', newSrc);
+            temp.on('load', function() {
+                $(this).removeClass('holder-hid');
+                loadContinuely();
+            });
+        }
+    }
     function openImageWrapper(id){
         $(".image-wrapper.open").removeClass("open");
         $("#w"+id).addClass("open");
+        loadContinuely();
     }
     
         // setCookie("video", window.location.pathname + window.location.search, 30)

@@ -122,7 +122,7 @@ $menu_name = isset($menu_name) ? $menu_name : '';
                 </a>
                 <a href="{{ url('/download-image') }}" class="menu-link">
                     <li class="first-dc {{ \AppHelper::isMenuActive('download-image', $menu_name) }}">
-                        <i class="icon-task icon-menu"></i>E-Hentai
+                        <i class="icon-task icon-menu"></i>Download
                     </li>
                 </a>
                 <a href="{{ url('/setting') }}" class="menu-link">

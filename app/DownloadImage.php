@@ -13,6 +13,12 @@ class DownloadImage extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'title', 'url', 'status', 'total', 'total', 'completed',
+        'id', 'title', 'url', 'status', 'total', 'completed',
     ];
+
+    function getStatusTextAttribute() {
+        $status = config('custom.download.status');
+
+        return  isset($this->status) && isset($status[$this->status]) ? $status[$this->status] : null;
+    }
 }

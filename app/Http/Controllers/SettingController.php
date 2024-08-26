@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\MergeVideo;
+use App\Jobs\ResetManga;
+use App\Jobs\ConvertVideo;
 use App\Models\GroupMedia;
 use Illuminate\Http\Request;
 use App\Jobs\ResetVideo;
+use Illuminate\Support\Facades\Artisan;
 
 class SettingController extends Controller
 {
@@ -37,6 +41,27 @@ class SettingController extends Controller
         foreach ($groupMedias as $key => $value) {
             dispatch(new ResetVideo($value));
         }
+
+        return response()->json([], 200);
+    }
+    
+    public function resetManga(Request $request)
+    {
+        dispatch(new ResetManga());
+
+        return response()->json([], 200);
+    }
+    
+    public function convertVideo(Request $request)
+    {
+        dispatch(new ConvertVideo());
+
+        return response()->json([], 200);
+    }
+
+    public function mergeVideo(Request $request)
+    {
+        dispatch(new MergeVideo());
 
         return response()->json([], 200);
     }

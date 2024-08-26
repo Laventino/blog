@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Manga;
 use App\MangaImage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
 class MangaController extends Controller
 {
     /**
@@ -14,14 +16,30 @@ class MangaController extends Controller
      */
     public function index()
     {
-        $datas = Manga::select('manga.*', \DB::raw('COUNT(manga_images.id) as image_count'))->join('manga_images','manga.id','manga_images.manga_id')->groupBy('manga.id')->whereNotNull('manga_images.id')->paginate(20);
+        $datas = Manga::join('manga_images','manga.id','manga_images.manga_id')
+        ->select('manga.*', \DB::raw('COUNT(manga_images.id) as image_count'))
+        ->where('manga.status', 1)
+        ->whereNotNull('manga_images.id')
+        ->groupBy('manga.id')
+        ->paginate(20);
         return \View::make('manga.index', compact('datas'));
     }
 
     public function trash(Request $request) 
     {
-        $storagePath = storage_path() .'\app\public\videos\PT\manga';
         $manga = Manga::find($request->get('id'));
+        
+        $sourcePath = 'public/videos/PT/manga' . '/' . $manga->genre . '/' . $manga->name;
+        $destinationPath = 'public/videos/PT/manga_trashed' . '/' . $manga->genre . '/' . $manga->name;
+        if (Storage::exists($sourcePath)) {
+            Storage::move($sourcePath, $destinationPath);
+            $manga->update([
+                'status' => 2
+            ]);
+        } else {
+            logger('Manga folder can be found');
+        }
+
         // rename($source, $destination)
         // return $request->get('id');
     }
@@ -56,7 +74,8 @@ class MangaController extends Controller
     public function show($id)
     {
         $data = MangaImage::where('manga_id',$id)->orderByRaw("CASE WHEN name REGEXP '^[a-zA-Z]' THEN 1 ELSE 0 END ASC, CAST(name AS UNSIGNED) ASC")->get();
-        return \View::make('manga.show', compact(['data', 'id']));
+        $path = $data->pluck('path')->toArray();
+        return \View::make('manga.show', compact(['data', 'id', 'path']));
     }
 
     /**

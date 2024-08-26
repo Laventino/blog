@@ -64,15 +64,78 @@
         .input-text {
             height: 32px;
         }
+        .mb-1 {
+            margin-bottom: 1rem;
+        }
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+        .mb-3 {
+            margin-bottom: 3rem;
+        }
+        .mb-4 {
+            margin-bottom: 4rem;
+        }
+        .mb-5 {
+            margin-bottom: 5rem;
+        }
+        .table-wrapper {
+            background-color: #424242;
+            display: flex;
+            padding: 12px 12px;
+            flex-direction: column;
+            border-radius: 2px;
+        }
+        table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #fff;
+        }
+
+        td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
     </style>
     <div class="setting-page">
         <div class="container">
-            <div class="item-wrapper">
+            <div class="item-wrapper mb-1">
                 <div class="d-flex">
                     <input type="text" class="w-p-8 input-text" name="" id="url" placeholder="URL">
                     <input type="text" class="w-p-2 input-text" name="" id="start" placeholder="Start Index">
                 </div>
                <button id="submit" class="submit-button">Submit</button>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th>name</th>
+                        <th>url</th>
+                        <th>status</th>
+                        <th>total</th>
+                        <th>complete</th>
+                        <th>action</th>
+                    </tr>
+                    @foreach ($data as $item)
+                        <tr>
+                            <td>{{ $item->title }}</td>
+                            <td>{{ $item->url }}</td>
+                            <td>{{ $item->status_text }}</td>
+                            <td>{{ $item->total }}</td>
+                            <td>{{ $item->completed }}</td>
+                            <td>
+                                <button class="button_retry" value="{{$item->id}}">Retry</button>
+                                <button class="button_remove" value="{{$item->id}}">Delete</button>
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
             </div>
         </div>
     </div>
@@ -103,11 +166,34 @@
                     "url": url.val(),
                     "start": start.val(),
                 }, '/download-image/url', function(res) {
-                    
+                    console.log(res);
+                    location.reload();
                 });
                 url.val('')
                 start.val('')
             }
+        })
+        $('.button_retry').on('click', function(){
+            const value = $(this).attr('value')
+            if(value) {
+                ajaxCustom({
+                    "id": value
+                }, '/download-image/retry', function(res) {
+                    location.reload();
+                });
+            }
+  
+        })
+        $('.button_remove').on('click', function(){
+            const value = $(this).attr('value')
+            if(value) {
+                ajaxCustom({
+                    "id": value
+                }, '/download-image/delete', function(res) {
+                    location.reload();
+                });
+            }
+  
         })
     </script>
 @endsection

@@ -1,39 +1,40 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Jobs;
 
-use Illuminate\Console\Command;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use App\Manga;
 use App\MangaImage;
-use Illuminate\Support\Facades\DB;
 
-class ResetAllMangaCommand extends Command
+class ResetManga implements ShouldQueue
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'reset:manga';
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
 
     /**
-     * The console command description.
+     * Create a new job instance.
      *
-     * @var string
+     * @return void
      */
-    protected $description = 'Reset all manga';
+    public function __construct()
+    {
+    }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      *
-     * @return int
+     * @return void
      */
     public function handle()
     {
         $path = storage_path() . "/app/public/videos/PT/manga";
         $mapPath = $this->looping($path);
         $this->renewMangaPath($mapPath);
-        // $this->info("success");
     }
 
     private function looping($path){
@@ -95,11 +96,11 @@ class ResetAllMangaCommand extends Command
                 $_name = $name;
 
                 $manga = [
-                    'name'      => $_name,
-                    'path'      => "",
-                    'cover'     => "",
-                    'genre'     => $_genre,
-                    'status'    => 1,
+                    'name'  => $_name,
+                    'path'  => "",
+                    'cover' => "",
+                    'genre' => $_genre,
+                    'status' => 1,
                 ];
                 $mangaModel = Manga::create($manga);
                 foreach ($mangas as $image_name => $image) {
@@ -120,4 +121,5 @@ class ResetAllMangaCommand extends Command
         }
         // MangaImage::insert($mangaListImage);
     }
+
 }
