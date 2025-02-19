@@ -12,6 +12,7 @@ class MergeVideo implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    protected $folderCount;
 
     /**
      * Create a new job instance.
@@ -30,7 +31,7 @@ class MergeVideo implements ShouldQueue
     public function handle()
     {
         $directory = storage_path("app\\public\\videos\\video\\convert\\merge");
-
+        $this->folderCount = count(glob($directory . '/*', GLOB_ONLYDIR));
         // Scan the directory and filter out only directories
         $folders = array_filter(scandir($directory), function($item) use ($directory) {
             return is_dir($directory . DIRECTORY_SEPARATOR . $item) && !in_array($item, ['.', '..']);
@@ -41,9 +42,13 @@ class MergeVideo implements ShouldQueue
             $this->merging($directory.'\\'.$folder, $folder);
         }
     }
+    function generateRandomString($length = 16) {
+        return bin2hex(random_bytes($length / 2));
+    }
     public function merging($path, $name){
         // $path = storage_path() . "/app/public/videos/video/convert/merge";
-        $ds = storage_path("app\\public\\videos\\video\\convert\\merged\\$name.mp4");
+        $randomString = $this->generateRandomString(16);
+        $ds = storage_path("app\\public\\videos\\video\\convert\\merged\\$randomString.mp4");
         $arrPath = array_unique($this->looping($path));
         $stringMerge = '';
         foreach ($arrPath as $key => $value) {

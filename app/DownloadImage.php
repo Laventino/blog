@@ -13,7 +13,7 @@ class DownloadImage extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'title', 'url', 'status', 'total', 'completed',
+        'id', 'title', 'url', 'image', 'status', 'total', 'completed',
     ];
 
     function getStatusTextAttribute() {

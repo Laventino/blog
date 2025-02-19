@@ -2,10 +2,14 @@
 
 namespace App\Console\Commands;
 
+use App\Manga;
+use App\MangaImage;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise;
 
 class x extends Command
 {
@@ -40,55 +44,79 @@ class x extends Command
      */
     public function handle()
     {
-        $url = 'https://imhentai.xxx/gallery/1210550/';
-        $skip = null;
+        function generateRandomString($length = 16) {
+            return bin2hex(random_bytes($length / 2));
+        }
+        \Log::info('item',[generateRandomString(16)]);
+        // $path = "n/Aru Kyoudai no Baai In The Case of Certain Siblings";
+        // $mangaPath = storage_path() . "/app/public/videos/PT/manga/" . $path;
+        // $parts = explode('/', $path);
+        // $map = [];
+        // $map[$parts[0]][$parts[1]] = [];
+     
+        // if(is_dir($mangaPath)){
+        //     foreach(scandir($mangaPath) as $mangaFile) {
+        //         if($mangaFile == "." || $mangaFile == ".."){
+        //             continue;
+        //         }
+        //         $ext = pathinfo($path . '/'.$parts[0].'/'.$parts[1].'/'.$mangaFile, PATHINFO_EXTENSION);
+        //         if(in_array($ext, array("zip","ZIP",""))){
+        //             continue;
+        //         }
+        //         $name = pathinfo($path . '/'.$parts[0].'/'.$parts[1].'/'.$mangaFile, PATHINFO_FILENAME);
+        //         if( $mangaFile == 'ReadMe.txt'){
+        //             unlink($path . '/'.$parts[0].'/'.$parts[1].'/'.$mangaFile);
+        //         }
+        //         $map[$parts[0]][$parts[1]][] = [
+        //             'path' => '/'.$parts[0].'/'.$parts[1].'/'.$mangaFile,
+        //             'name' => $name
+        //         ];
+        //     }
+        // }
+        // $this->insertMangaPath($map);
+    }
 
-        $parsedUrl = parse_url($url);
-        $path = rtrim($parsedUrl['path'], '/');
-        $baseUrl = $parsedUrl['scheme'] . "://" . $parsedUrl['host'] . $path;
- 
-        $url_parts = explode('/', $baseUrl);
-        $galleryId = end($url_parts);
-
-        $htmlListPage = Http::withOptions(['verify' => false])->get($baseUrl);
-        preg_match('/<div class="col-md-7 col-sm-7 col-lg-8 right_details">\s*<h1>(.*?)<\/h1>/s', $htmlListPage, $matchesTile);
-        $titleRaw = isset($matchesTile[1]) ? $matchesTile[1] : '';
-        // filter symbol can not use on folder
-        $title = str_replace(array(":", " |", "|", "?"), "", urldecode($titleRaw));
-        // \Log::info('item',[$title]);
-        
-        $totalImage = 0;
-        $pattern = '/<ul class="galleries_info">.*?<li class="pages">(.*?)<\/li>/s';
-        preg_match($pattern, $htmlListPage, $matches);
-        $totalImage =  $matches[1];
-        preg_match('/Pages:\s*(\d+)/', $totalImage, $matches);
-        $totalImage = $matches[1];
-
-        for ($i= ($skip ?? 1); $i <= $totalImage; $i++) { 
-        // foreach ($linkImagePages as $key => $link) {
-            $isSuccess = false;
-            $imageData = null;
-            try {
-                $htmlImagePage = Http::withOptions(['verify' => false])->get('https://imhentai.xxx/view/' . $galleryId . '/' . $i);
-                $pattern = '/<img\s[^>]*id="gimg"[^>]*src="([^"]*)"[^>]*>/i';
-                preg_match($pattern, $htmlImagePage, $matches);
-                $imageUrl = isset($matches[1]) ? $matches[1] : '';
-                $extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
-                $localPath = $i . '.' . $extension;
-                $directory = '/public/videos/PT/manga/im/' . $title . '/' . $localPath;
-                $imageData = file_get_contents($imageUrl);
-                if ($imageData !== false) {
-                    Storage::put($directory, $imageData);
+    
+    private function insertMangaPath($mapPath){
+        foreach ($mapPath as $genre => $items) {
+            $_genre = $genre;
+            foreach ($items as $name => $mangas) {
+                $read = false;
+                $groupId = 0;
+                $_name = $name;
+                $file = storage_path("app/public/videos/PT/manga/$_genre/$_name/info.json");
+                if (file_exists($file)) {
+                    $jsonString = file_get_contents($file);
+                    $data = json_decode($jsonString, true);
+                    if ($data === null) {
+                        \Log::info('item',['Error decoding JSON.']);
+                    } else {
+                        $read = isset($data['viewed']) ? $data['viewed'] : false;
+                        $groupId = isset($data['group_id']) ? $data['group_id'] : 0;
+                    }
+                } else {
+                    $data = ['viewed' => false];
+                    $jsonData = json_encode($data);
+                    file_put_contents($file, $jsonData);
+                } 
+                $manga = [
+                    'name'   => $_name,
+                    'path'   => "app/public/videos/PT/manga/$_genre/$_name",
+                    'cover'  => "",
+                    'genre'  => $_genre,
+                    'status' => 1,
+                    'read'   => $read,
+                    'total_image' => count($mangas),
+                    'group_id' => $groupId,
+                ];
+                $mangaModel = Manga::create($manga);
+                foreach ($mangas as $image_name => $image) {
+                    MangaImage::insert([
+                        'name'      => $image['name'],
+                        'path'      => $image['path'],
+                        'manga_id'  => $mangaModel->id,
+                    ]);
                 }
-                $isSuccess = true;
-                $completed_count++;
-                
-                $downloadIdImage->update([
-                    'completed' => $completed_count,
-                ]);
-            } catch (\Throwable $th) {
-                logger($th);
-                $imageData = false;
             }
         }
     }

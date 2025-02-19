@@ -61,6 +61,10 @@
             height: 32px;
             width: 100%;
         }
+        .action-button {
+            height: 32px;
+            width: 150px;
+        }
         .input-text {
             height: 32px;
         }
@@ -102,6 +106,16 @@
         tr:nth-child(even) {
             background-color: #dddddd;
         }
+        .preview-image {
+            width: 150px;
+        }
+        .url-column,
+        .title-column {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 250px;
+            text-overflow: ellipsis;        
+        }
     </style>
     <div class="setting-page">
         <div class="container">
@@ -112,24 +126,46 @@
                 </div>
                <button id="submit" class="submit-button">Submit</button>
             </div>
+            <div class="item-wrapper mb-1">
+                <div class="d-flex">
+                    <button id="refresh-cover" class="action-button">Refresh Cover</button>
+                    <button id="retry-all" class="action-button">Retry All</button>
+                </div>
+            </div>
             <div class="table-wrapper">
+                <div class="d-flex label-white mb-1">
+                    Total: {{ $data->count() }}
+                </div>
                 <table>
                     <tr>
-                        <th>name</th>
-                        <th>url</th>
-                        <th>status</th>
-                        <th>total</th>
-                        <th>complete</th>
-                        <th>action</th>
+                        <th>Name</th>
+                        <th>Image</th>
+                        <th>Url</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th>Complete</th>
+                        <th>Action</th>
                     </tr>
                     @foreach ($data as $item)
                         <tr>
-                            <td>{{ $item->title }}</td>
-                            <td>{{ $item->url }}</td>
+                            <td>
+                                <div class="title-column" title="{{$item->title }}">
+                                    {{ $item->title }}
+                                </div>
+                            </td> 
+                            <td>
+                                <img class="preview-image" src="{{ $item->image }}" alt="">
+                            </td>
+                            <td>
+                                <div class="url-column url_column" title="{{$item->title }}">
+                                    {{ $item->url }}
+                                </div>
+                            </td>
                             <td>{{ $item->status_text }}</td>
                             <td>{{ $item->total }}</td>
                             <td>{{ $item->completed }}</td>
                             <td>
+                                <button class="button_fill" value="{{$item->id}}">Filling</button>
                                 <button class="button_retry" value="{{$item->id}}">Retry</button>
                                 <button class="button_remove" value="{{$item->id}}">Delete</button>
                             </td>
@@ -158,6 +194,11 @@
                 }
             });
         }
+        
+        $('.url_column').on('click', function() {
+            let text = $(this).text().trim(); 
+            navigator.clipboard.writeText(text);
+        })
         let url = $('#url');
         let start = $('#start');
         $('#submit').on('click', function(){
@@ -173,12 +214,32 @@
                 start.val('')
             }
         })
+        $('#refresh-cover').on('click', function(){
+            ajaxCustom({}, '/download-image/refresh-cover', function(res) {
+                location.reload();
+            });
+        })
+        $('#retry-all').on('click', function(){
+            ajaxCustom({}, '/download-image/retry-all', function(res) {
+                location.reload();
+            });
+        })
         $('.button_retry').on('click', function(){
             const value = $(this).attr('value')
             if(value) {
                 ajaxCustom({
                     "id": value
                 }, '/download-image/retry', function(res) {
+                    location.reload();
+                });
+            }
+        })
+        $('.button_fill').on('click', function(){
+            const value = $(this).attr('value')
+            if(value) {
+                ajaxCustom({
+                    "id": value
+                }, '/download-image/fill', function(res) {
                     location.reload();
                 });
             }

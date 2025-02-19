@@ -4,25 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Manga;
 use App\MangaImage;
+use App\Models\GroupMedia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class MangaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Create a new controller instance.
      *
-     * @return \Illuminate\Http\Response
+     * @return void
      */
-    public function index()
+    public function __construct()
     {
-        $datas = Manga::join('manga_images','manga.id','manga_images.manga_id')
-        ->select('manga.*', \DB::raw('COUNT(manga_images.id) as image_count'))
-        ->where('manga.status', 1)
-        ->whereNotNull('manga_images.id')
-        ->groupBy('manga.id')
-        ->paginate(20);
-        return \View::make('manga.index', compact('datas'));
+        $this->middleware('auth');
+    }
+    
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $type = $request->type;
+
+        $datas = Manga::where('manga.status', 1)
+            ->when($type == 'read', function($query) {
+                $query->where('read', true);
+            })
+            ->when($type == 'later', function($query) {
+                $query->where('group_id', 1);
+            })
+            ->when($type == 'interest', function($query) {
+                $query->where('group_id', 2);
+            })
+            ->orderBy('read', 'asc')
+            ->orderBy('group_id', 'asc')
+            ->paginate(20);
+
+        $groupMedias = GroupMedia::where("type","manga")
+            ->get();
+        return \View::make('manga.index', compact('datas', 'groupMedias'));
     }
 
     public function trash(Request $request) 
@@ -39,9 +60,6 @@ class MangaController extends Controller
         } else {
             logger('Manga folder can be found');
         }
-
-        // rename($source, $destination)
-        // return $request->get('id');
     }
 
     /**
@@ -73,9 +91,59 @@ class MangaController extends Controller
      */
     public function show($id)
     {
+        $manga =Manga::find($id);
         $data = MangaImage::where('manga_id',$id)->orderByRaw("CASE WHEN name REGEXP '^[a-zA-Z]' THEN 1 ELSE 0 END ASC, CAST(name AS UNSIGNED) ASC")->get();
         $path = $data->pluck('path')->toArray();
-        return \View::make('manga.show', compact(['data', 'id', 'path']));
+        return \View::make('manga.show', compact(['data', 'id', 'path', 'manga']));
+    }
+    public function read(Request $request)
+    {
+        $manga = Manga::find($request->id);
+        $file = storage_path("$manga->path/info.json");
+        
+        if (file_exists($file)) {
+            $jsonString = file_get_contents($file);
+            $data = json_decode($jsonString, true);
+            if ($data === null) {
+                \Log::info('item',['Error decoding JSON.']);
+            } else {
+                $data['viewed'] = !$manga->read;
+                $jsonData = json_encode($data);
+                file_put_contents($file, $jsonData);
+            }
+        } else {
+            $data = ['viewed' => !$manga->read];
+            $jsonData = json_encode($data);
+            file_put_contents($file, $jsonData);
+        } 
+        $manga->update(['read' => !$manga->read]);
+        return !$manga->read;
+    }
+
+    public function group(Request $request)
+    {
+        $id = $request->id;
+        $groupId = $request->group;
+        $manga = Manga::find($id);
+        $file = storage_path("$manga->path/info.json");
+        
+        if (file_exists($file)) {
+            $jsonString = file_get_contents($file);
+            $data = json_decode($jsonString, true);
+            if ($data === null) {
+                \Log::info('item',['Error decoding JSON.']);
+            } else {
+                $data['group_id'] = $groupId;
+                $jsonData = json_encode($data);
+                file_put_contents($file, $jsonData);
+            }
+        } else {
+            $data = ['group_id' => $groupId];
+            $jsonData = json_encode($data);
+            file_put_contents($file, $jsonData);
+        } 
+        $manga->update(['group_id' => $request->group]);
+        return $request->group;
     }
 
     /**

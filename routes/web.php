@@ -52,16 +52,28 @@ Route::get('/workspace/{id}', 'WorkspaceController@getWorkspace');
 Route::get('/videos/menu/{menu}', 'VideoController@getByMenu');
 Route::resource('/videos', 'VideoController');
 Route::resource('/manga', 'MangaController');
+Route::get('/videos-folder', 'VideoController@folder');
+Route::post('video/move-to-trash', 'VideoController@moveToTrash');
 
 Route::post('manga/trash', 'MangaController@trash');
+Route::post('manga/read', 'MangaController@read');
+Route::post('manga/group', 'MangaController@group');
 
 Route::resource('/images', 'ImageController');
 Route::post('v1/video/status/update', 'WorkspaceController@statusUpdate');
+Route::post('v1/video/status/move', 'WorkspaceController@move');
 
 Route::resource('/download-image', 'DownloadImageController');
 Route::post('/download-image/url', 'DownloadImageController@downloadImage');
 Route::post('/download-image/retry', 'DownloadImageController@retryDownload');
+Route::post('/download-image/fill', 'DownloadImageController@fillDownload');
+Route::post('/download-image/refresh-cover', 'DownloadImageController@refreshCover');
+Route::post('/download-image/retry-all', 'DownloadImageController@retryAll');
 Route::post('/download-image/delete', 'DownloadImageController@deleteDownload');
+
+Route::resource('note', 'NoteController');
+Route::post('note/add', 'NoteController@store');
+Route::post('note/delete', 'NoteController@destroy');
 
 Route::get('/download-tiktok/{videoId}', [TikTokController::class, 'download'])->name('tiktok.download');
 

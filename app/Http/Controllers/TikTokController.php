@@ -10,6 +10,16 @@ use Ssovit\TikTokApi\TikTokApi;
 
 class TikTokController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
     public function download($videoId)
     {
         // $api = new \Sovit\TikTok\Api();

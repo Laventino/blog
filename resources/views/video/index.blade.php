@@ -176,7 +176,7 @@
         }
         .box-wrapper a .duration{
             position: absolute;
-            bottom: 0;
+            top: 0;
             right: 0;
             background-color: #242424ba;
             color: white;
@@ -241,6 +241,15 @@
             display: none;
             background-color: #555555;
         }
+        .box .title{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 4px 4px;
+            background-color: #242424aa;
+        }
     </style>
 
     <div class="container">
@@ -248,7 +257,7 @@
         @foreach ($datas as $item)
             <?php
                 if(isset($item->cover_path) && $item->cover_path != '' && $item->cover_path !=null){
-                    $src = URL::to('/') .'/storage/thumbnail/'. $item->cover_path .'.jpg';
+                    $src = URL::to('/') .'/storage'. $item->cover_path .'.jpg';
                 }else{
                     $src = URL::to('/') .'/assets/image/none-image.png';
                 }
@@ -258,7 +267,9 @@
                 @if ($item->duration)
                 <div class="duration">{{$item->duration}}</div>
                 @endif
-
+                <div class="title">
+                    {{$item->name}}
+                </div>
                 <div class="option">
 
                     <?php

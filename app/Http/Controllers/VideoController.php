@@ -85,4 +85,57 @@ class VideoController extends Controller
     {
         //
     }
+
+    public function moveToTrash(Request $request)
+    {
+        $path = storage_path() . "/app/public" . str_replace('storage', '', $request->src);
+        $filename = basename($path);
+        $newPath = "/videos/video/trash/" . $filename;
+        $destinationPath = storage_path() . "/app/public" . $newPath;
+        copy($path, $destinationPath);
+        if (file_exists($destinationPath)) {
+            unlink($path);
+        }
+
+        return true;
+    }
+
+    public function folder(Request $request)
+    {
+        $requestPath = $request->path;
+        $previousPath = "";
+        $removePath = strrpos($requestPath, '/');
+        if ($removePath !== false) {
+            $removePath = substr($requestPath, 0, $removePath);
+            $previousPath = $removePath != "/videos/video" ? $removePath : "";
+        }
+
+        $path = storage_path() . ($requestPath ? ("/app/public" . $requestPath) : "/app/public/videos/video");
+        $arrPath = $this->looping($path);
+ 
+        array_multisort(array_column($arrPath, 'ext'), SORT_ASC, $arrPath);
+
+        return \View::make('video.indexFolder', compact('arrPath', 'previousPath'));
+    }
+
+    
+    public function looping($path){
+        $arr =  array();
+        $arr_in_file = array();
+
+        foreach(scandir($path) as $file) {
+            if($file == "." || $file == ".." || $file == "web" || $file == 'PT'){
+                continue;
+            }
+            $ext = pathinfo($file, PATHINFO_EXTENSION);
+            array_push($arr, [
+                'path' => substr($path,strlen(storage_path().'/app/public')).'/'.$file,
+                'img_path' => 'storage/thumbnail' . substr($path,strlen(storage_path().'/app/public')).'/'.str_replace('.mp4','.jpg', $file),
+                'name' => $file,
+                'ext' => $ext
+            ]);
+        }
+        $arr = array_merge($arr, $arr_in_file);
+        return $arr;
+    }
 }

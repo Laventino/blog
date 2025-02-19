@@ -240,7 +240,7 @@
 <body>
     <div class="nav">
         <div class="back">
-            <a href="/videos">Back</a>
+            <a href="/videos" id="back">Back</a>
         </div>
         <div class="pagination-top">
             <nav>
@@ -279,6 +279,7 @@
                         }
                     }
                 ?>
+                <div class="button-style move_video_button disable">Move to old</div>
                 <div class="button-delete button-style video_option_button {{array_key_exists('delete', $mark) ? '' : 'disable'}}" value="delete">Delete</div>
                 <div class="button-error button-style video_option_button {{array_key_exists('error', $mark) ? '' : 'disable'}}" value="error">Error</div>
                 <div class="button-duplicate button-style video_option_button {{array_key_exists('duplicate', $mark) ? '' : 'disable'}}" value="duplicate">Duplicate</div>
@@ -362,6 +363,29 @@
                 _this.removeClass("loading");
             });
         });
+
+        $(".move_video_button").click(function(){
+            let _this = $(this)
+            if (_this.hasClass("loading")) {
+                return false;
+            }
+            _this.addClass("loading");
+            ajaxCustom({
+                "id": id
+            }, "/v1/video/status/move", function(res) {
+                if (res == 'move') {
+                    _this.removeClass("disable");
+                    back();
+                } else {
+                    _this.addClass("disable");
+                }
+                _this.removeClass("loading");
+            });
+        });
+        function back(){
+            var back = document.getElementById("back");
+            back.click();
+        }
     </script>
 </body>
 

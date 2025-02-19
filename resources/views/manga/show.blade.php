@@ -49,7 +49,8 @@
             height: 100%;
         }
 
-        .trash {
+        .trash,.group,
+        .trash,.read {
             height: 100%;
             width: 100px;
             background-color: #424242;
@@ -58,7 +59,7 @@
             cursor: pointer;
             
         }
-        .trash .text {
+        .trash .text,.read .text {
             text-decoration: none;
             display: flex;
             justify-content: center;
@@ -296,6 +297,21 @@
         .confirm-card .footer .button-container button{
             margin-left: 5px;
         }
+        .read.blue {
+            background-color: rgb(35, 150, 204);
+        }
+        .read.green {
+            background-color: rgba(136, 226, 125, 0.795);
+        }
+        .nav .action {
+            display: flex;
+        }
+        .nav .group {
+            background-color: rgb(126, 126, 126);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -303,6 +319,24 @@
     <div class="nav">
         <div class="back">
             <a href="/manga" id="back">Back</a>
+        </div>
+        <div class="action">
+            <div class="read {{$manga->read ? 'blue' : 'green'}}" value="{{$id ?? null}}">
+                <div class="text">
+                    read
+                </div>
+            </div>
+            <div class="group" value="{{$id ?? null}}" group="{{$manga->group_id}}">
+                <div class="text">
+                    @if ($manga->group_id == 1)
+                        Later                    
+                    @elseif ($manga->group_id == 2)
+                        Interest                    
+                    @else
+                        Unset
+                    @endif
+                </div>
+            </div>
         </div>
         <div class="trash" value="{{$id ?? null}}">
             <div class="text">
@@ -387,6 +421,42 @@
             mangaId = $(this).attr("value");
             openModal();
         });
+        $(".read").click(function(){
+            let _this = this;
+            ajaxCustom({
+                "id": $(this).attr("value")
+            }, "/manga/read", function(res) {
+                if (res) {
+                    $(_this).addClass("green").removeClass("blue");
+                } else {
+                    $(_this).addClass("blue").removeClass("green");
+                }
+            });
+        });
+        $(".group").click(function(){
+            let _this = this;
+            let group = $(this).attr("group");
+            group = group > 0 ? group : 0;
+            if (group < 2) {
+                group++;
+            } else if (group == 2) {
+                group = 0;
+            }
+
+            ajaxCustom({
+                "id": $(this).attr("value"),
+                "group": group
+            }, "/manga/group", function(res) {
+                let text = "Unset";
+                if (group == 1) {
+                    text = "Later";
+                } else if (group == 2) {
+                    text = "Interest";
+                }
+                $(_this).attr("group", group);
+                $(_this).find('.text').text(text);
+            });
+        });
         $("#confirm").click(function(){
             let _this = $(this)
             ajaxCustom({
@@ -427,7 +497,7 @@
         // Example usage:
         @php
             $quotedArray = array_map(function($item) {
-                return "'" . URL::to('/') . '/storage/videos/PT/manga/' . $item . "'";
+                return '"' . URL::to('/') . '/storage/videos/PT/manga/' . $item . '"';
             }, $path);
             $string = implode(',', $quotedArray);
         @endphp

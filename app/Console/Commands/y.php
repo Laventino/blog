@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
+use App\Video;
+use VideoThumbnail;
 
 class y extends Command
 {
@@ -34,55 +34,108 @@ class y extends Command
     }
 
     /**
-     * Execute the console command.
+     * Execute the job.
      *
-     * @return int
+     * @return void
      */
     public function handle()
     {
-        $directory = 'D:\\File\\song\\anime\\m\\video\\convert\\merge';
+        // $videos = Video::where("extension","mp4")
+        //     ->where('path', 'like', $this->groupMedias->path . '%')
+        //     ->get();
 
-        // Scan the directory and filter out only directories
-        $folders = array_filter(scandir($directory), function($item) use ($directory) {
-            return is_dir($directory . DIRECTORY_SEPARATOR . $item) && !in_array($item, ['.', '..']);
-        });
-        
-        // Output the list of folders
-        foreach ($folders as $folder) {
-            $this->merging($directory.'\\'.$folder, $folder);
-        }
-    }
-    public function merging($path, $name){
-        // $path = storage_path() . "/app/public/videos/video/convert/merge";
-        $ds = storage_path() . "\\app\\public\\videos\\video\\convert\\merged\\$name.mp4";
+        // // foreach ($videos as $key => $video) {
+        // //     $thumbnail_path   = storage_path().'\app\public\thumbnail';
+        // //     $coverPath = $thumbnail_path . $video->cover_path . '.jpg';
+        // //     if (file_exists($coverPath)) {
+        // //         unlink($coverPath);
+        // //     }
+        // //     $video->delete();
+        // // }
+        $path = storage_path() . "/app/public/videos/video/hentai";
         $arrPath = array_unique($this->looping($path));
-        $stringMerge = '';
-        foreach ($arrPath as $key => $value) {
-            $dir = storage_path() . "\\app\\public\\videos\\video\\convert\\merge\\$name\\$value";
-            $stringMerge .= $stringMerge == '' ? $dir : '|'.$dir;
-        }
-        if ($stringMerge != "") {
-            $ffmpegCommand = "ffmpeg -i concat:\"$stringMerge\" -c copy \"$ds\" 2>&1";
-            $x = exec($ffmpegCommand);
-        }
+        $arrPath = [
+            "/videos/video/hentai/A School Where Love Is Unnecessary/A School Where Love Is Unnecessary.mp4",
+            "/videos/video/hentai/Accelerando Datenshi tachi no Sasayaki/Accelerando Datenshi tachi no Sasayaki - Episode 1.mp4",
+          ];
+        $this->renewVideoPath($arrPath, 'hentai', '/videos/video/hentai');
     }
+
     public function looping($path){
         $arr =  array();
         $arr_in_file = array();
 
         foreach(scandir($path) as $file) {
-            if($file == "." || $file == ".."){
+            if($file == "." || $file == ".." || $file == "web" || $file == 'PT'){
                 continue;
             }
             if(is_dir($path.'/'.$file)){
                 $arr_in_file = array_merge($arr_in_file, $this->looping($path.'/'.$file));
             }
             $ext = pathinfo($file, PATHINFO_EXTENSION);
-            if(in_array($ext, array("ts","TS","mp4","MP4","M4V","m4v","MOV","mov","mkv","MKV"))){
-                array_push($arr, substr($path,strlen(storage_path().'/app/public/videos/video/convert/original')).$file);
+            if(in_array($ext, array("mp4","MP4"))){
+                array_push($arr, substr($path,strlen(storage_path().'/app/public')).'/'.$file);
             }
         }
         $arr = array_merge($arr, $arr_in_file);
         return $arr;
+    }
+
+    public function renewVideoPath($arrPath, $slug, $filePath){
+        $thumbnail_path   = storage_path().'\app\public\thumbnail'. $filePath;
+        if (!File::exists($thumbnail_path)) {
+            File::makeDirectory($thumbnail_path, 0755, true);
+        }
+
+        foreach ($arrPath as $key => $value) {
+            $extension = pathinfo(storage_path($value), PATHINFO_EXTENSION);
+            $thumbnail_image  = $slug . '_' . ($key + 1) . ".jpg";
+            $path = storage_path('app\public'.$value);
+            $getID3 = new \getID3;
+            $video_file = $getID3->analyze($path);
+            $cover_path = null;
+            $name = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_BASENAME);
+            $filename = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_DIRNAME);
+            $coverPath = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_FILENAME) . '.jpg';
+
+            $newFilename = preg_replace('/\.[^.]*$/', '.jpg', $value);
+            \Log::info('item',[$newFilename]);
+            // if(!isset($video_file['error']) ){
+                
+            // if (file_exists($filename . '/' . $coverPath)) {
+            //     \Log::info('item',[1]);
+            // } else {
+            //     $cover_path = $slug . '_' . ($key + 1);
+            //     $time_to_image    = $video_file['playtime_seconds'];
+            //     if ($time_to_image < 120) {
+            //         $time_to_image    = floor(($time_to_image)/2);
+            //     } else {
+            //         $time_to_image = 60;
+            //     }
+            //     $videoUrl = storage_path('app\public'.$value);
+            //     VideoThumbnail::createThumbnail(
+            //         $videoUrl,
+            //         $thumbnail_path,
+            //         $thumbnail_image,
+            //         $time_to_image,
+            //         $width = 640,
+            //         $height = 480
+            //     );
+            // }
+        // }
+
+            // $duration = null;
+            // if(array_key_exists('playtime_string', $video_file)){
+            //     $duration = $video_file['playtime_string'];
+            // }
+
+            // Video::create([
+            //     'name' => $name,
+            //     'path' => $value,
+            //     'extension' => $extension,
+            //     'duration' => $duration,
+            //     'cover_path' => $filePath . '/' . $cover_path,
+            // ]);
+        }
     }
 }

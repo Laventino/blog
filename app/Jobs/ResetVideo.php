@@ -75,37 +75,42 @@ class ResetVideo implements ShouldQueue
     }
 
     public function renewVideoPath($arrPath, $slug, $filePath){
-        $thumbnail_path   = storage_path().'\app\public\thumbnail'. $filePath;
-        if (!File::exists($thumbnail_path)) {
-            File::makeDirectory($thumbnail_path, 0755, true);
-        }
 
         foreach ($arrPath as $key => $value) {
+            $name = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_BASENAME);
+            $filename = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_DIRNAME);
+            $coverPath = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_FILENAME);
             $extension = pathinfo(storage_path($value), PATHINFO_EXTENSION);
-            $thumbnail_image  = $slug . '_' . ($key + 1) . ".jpg";
+            $thumbnail_image  = $coverPath . ".jpg";
             $path = storage_path('app\public'.$value);
             $getID3 = new \getID3;
             $video_file = $getID3->analyze($path);
             $cover_path = null;
-            $name = pathinfo(storage_path() . '/app/public' . $value, PATHINFO_BASENAME);
-
-            if(!isset($video_file['error']) ){
-                $cover_path = $slug . '_' . ($key + 1);
-                $time_to_image    = $video_file['playtime_seconds'];
-                if ($time_to_image < 120) {
-                    $time_to_image    = floor(($time_to_image)/2);
-                } else {
-                    $time_to_image = 60;
+            $thumbnail_path = str_replace('/app/public','/app/public/thumbnail',$filename);
+            if (!File::exists($thumbnail_path)) {
+                File::makeDirectory($thumbnail_path, 0755, true);
+            }
+            if (file_exists($filename . '/' . $coverPath . '.jpg')) {
+                $cover_path = preg_replace('/\.[^.]*$/', '', $value);
+            } else {
+                if(!isset($video_file['error']) ){
+                    $cover_path = '/thumbnail' . $filePath . '/' . $slug . '_' . ($key + 1);
+                    $time_to_image    = $video_file['playtime_seconds'];
+                    if ($time_to_image < 120) {
+                        $time_to_image    = floor(($time_to_image)/2);
+                    } else {
+                        $time_to_image = 60;
+                    }
+                    $videoUrl = storage_path('app\public'.$value);
+                    VideoThumbnail::createThumbnail(
+                        $videoUrl,
+                        $thumbnail_path,
+                        $thumbnail_image,
+                        $time_to_image,
+                        $width = 640,
+                        $height = 480
+                    );
                 }
-                $videoUrl = storage_path('app\public'.$value);
-                VideoThumbnail::createThumbnail(
-                    $videoUrl,
-                    $thumbnail_path,
-                    $thumbnail_image,
-                    $time_to_image,
-                    $width = 640,
-                    $height = 480
-                );
             }
 
             $duration = null;
@@ -118,7 +123,7 @@ class ResetVideo implements ShouldQueue
                 'path' => $value,
                 'extension' => $extension,
                 'duration' => $duration,
-                'cover_path' => $filePath . '/' . $cover_path,
+                'cover_path' => $cover_path,
             ]);
         }
     }

@@ -194,12 +194,12 @@
         <div class="menu">
             <div class="title">FILE</div>
             <div class="drop-card">
-                <a class="element-card" href="/videos">
+                <a class="element-card" href="/manga">
                     ALL
                 </a>
                 @if (isset($groupMedias))
                     @foreach ($groupMedias as $item)
-                        <a class="element-card" href="/videos/menu/{{$item->name}}">
+                        <a class="element-card" href="/manga?type={{$item->slug}}">
                             {{$item->name}}
                         </a>
                     @endforeach
@@ -208,7 +208,7 @@
         </div>
 
         <div class="pagination-top">
-            {{$datas->links()}}
+            {{$datas->appends(request()->query())->links()}}
         </div>
     </div>
 
@@ -216,7 +216,7 @@
         .option {
             display: flex;
             position: absolute;
-            bottom: 0;
+            top: 0;
             left: 0;
         }
 
@@ -244,6 +244,15 @@
             margin: 0 2px 4px 2px;
             background-color: white;
         }
+        .image-wrapper .text{
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            color: white;
+            padding: 4px 4px;
+            background-color: #242424aa;
+        }
     </style>
 
     <div class="container">
@@ -258,8 +267,11 @@
             ?>
             <a href="/manga/{{$item->id}}" class="box image-wrapper">
                 <img src="{{$src}}" alt="">
+                <div class="text">
+                    {{$item->name}}
+                </div>
                 <div class="option">
-                    <div class="button-miss-category button-style video_option_button" value="wrong_category">{{$item->image_count}}</div>
+                    <div class="button-miss-category button-style video_option_button" value="wrong_category">{{$item->total_image}}</div>
                 </div>
             </a>
         @endforeach

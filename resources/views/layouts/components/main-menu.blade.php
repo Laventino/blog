@@ -110,6 +110,11 @@ $menu_name = isset($menu_name) ? $menu_name : '';
                         <i class="icon-task icon-menu"></i>Video
                     </li>
                 </a>
+                <a href="{{ url('/videos-folder') }}" class="menu-link">
+                    <li class="first-dc {{ \AppHelper::isMenuActive('videos-folder', $menu_name) }}">
+                        <i class="icon-task icon-menu"></i>Video Folder
+                    </li>
+                </a>
                 <a href="{{ url('/images') }}" class="menu-link">
                     <li class="first-dc {{ \AppHelper::isMenuActive('images', $menu_name) }}">
                         <i class="icon-task icon-menu"></i>Image
@@ -118,6 +123,11 @@ $menu_name = isset($menu_name) ? $menu_name : '';
                 <a href="{{ url('/manga') }}" class="menu-link">
                     <li class="first-dc {{ \AppHelper::isMenuActive('manga', $menu_name) }}">
                         <i class="icon-task icon-menu"></i>Manga
+                    </li>
+                </a>
+                <a href="{{ url('/note') }}" class="menu-link">
+                    <li class="first-dc {{ \AppHelper::isMenuActive('note', $menu_name) }}">
+                        <i class="icon-task icon-menu"></i>Note
                     </li>
                 </a>
                 <a href="{{ url('/download-image') }}" class="menu-link">

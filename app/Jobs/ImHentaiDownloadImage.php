@@ -20,17 +20,19 @@ class ImHentaiDownloadImage implements ShouldQueue
     private $url;
     private $skip;
     private $downloadId;
+    private $is_fill;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($url, $skip = null, $downloadId = null)
+    public function __construct($url, $skip = null, $downloadId = null, $is_fill = false)
     {
         $this->url = $url;
         $this->skip = $skip;
         $this->downloadId = $downloadId;
+        $this->is_fill = $is_fill;
     }
 
     /**
@@ -58,11 +60,13 @@ class ImHentaiDownloadImage implements ShouldQueue
         $galleryId = end($url_parts);
 
         $htmlListPage = Http::withOptions(['verify' => false])->get($baseUrl);
-        preg_match('/<div class="col-md-7 col-sm-7 col-lg-8 right_details">\s*<h1>(.*?)<\/h1>/s', $htmlListPage, $matchesTile);
-        $titleRaw = isset($matchesTile[1]) ? $matchesTile[1] : '';
+        preg_match('/<div class="col-md-7 col-sm-7 col-lg-8 right_details">\s*<h1>(.*?)<\/h1>/s', $htmlListPage, $matchesTitle);
+        $titleRaw = isset($matchesTitle[1]) ? $matchesTitle[1] : '';
         $title = str_replace(array(":", " |", "|", "?", ",", "."), "", urldecode(html_entity_decode($titleRaw)));
-        // Manually decode the HTML entity
-        $title = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title);
+        $title = str_replace("/", "%", urldecode(html_entity_decode($title)));
+        $title = str_replace(array('"', "#"), "-", urldecode(html_entity_decode($title)));
+        $title = htmlspecialchars_decode(preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title), ENT_QUOTES);
+        $title = str_replace("/", "%", urldecode(html_entity_decode($title)));
         $totalImage = 0;
         $pattern = '/<ul class="galleries_info">.*?<li class="pages">(.*?)<\/li>/s';
         preg_match($pattern, $htmlListPage, $matches);
@@ -81,42 +85,58 @@ class ImHentaiDownloadImage implements ShouldQueue
         }
 
         $storagePath = storage_path('/app/public/videos/PT/manga/im/' . $title);
+        $existFiles = File::isDirectory($storagePath) ? array_map(function($value) {
+            return pathinfo($value, PATHINFO_FILENAME);
+        }, scandir(storage_path() . "/app/public/videos/PT/manga/im/$title")) : [];
+
         if (!File::isDirectory($storagePath)) {
             File::makeDirectory($storagePath, 0777, true, true);
         }
 
         $completed_count = $skip ?? 0;
 
-        for ($i= ($skip ? $skip : 1); $i <= $totalImage; $i++) { 
+        for ($i = 1; $i <= $totalImage; $i++) { 
+            if ($this->is_fill && in_array($i, $existFiles)) {
+                $completed_count++;
+                continue;
+            }
+            if ($skip && $i < $skip) {
+                continue;
+            } 
             $isSuccess = false;
             $imageUrl = '';
             $imageData = null;
-            try {
-                $htmlImagePage = Http::withOptions(['verify' => false])->get('https://imhentai.xxx/view/' . $galleryId . '/' . $i);
-                $pattern = '/<img\s[^>]*id="gimg"[^>]*src="([^"]*)"[^>]*>/i';
-                preg_match($pattern, $htmlImagePage, $matches);
-                $imageUrl = isset($matches[1]) ? $matches[1] : '';
-                $extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
-                $localPath = $i . '.' . $extension;
-                $directory = '/public/videos/PT/manga/im/' . $title . '/' . $localPath;
-                $imageData = file_get_contents($imageUrl);
-                if ($imageData !== false) {
-                    Storage::put($directory, $imageData);
+            $try = 0;
+            
+            while (!$isSuccess && $try < 3) {
+                try {
+                    $try++;
+                    $htmlImagePage = Http::withOptions(['verify' => false])->get('https://imhentai.xxx/view/' . $galleryId . '/' . $i);
+                    $pattern = '/<img\s[^>]*id="gimg"[^>]*src="([^"]*)"[^>]*>/i';
+                    preg_match($pattern, $htmlImagePage, $matches);
+                    $imageUrl = isset($matches[1]) ? $matches[1] : '';
+                    $extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
+                    $localPath = $i . '.' . $extension;
+                    $directory = '/public/videos/PT/manga/im/' . $title . '/' . $localPath;
+                    $imageData = file_get_contents($imageUrl);
+                    if ($imageData !== false) {
+                        Storage::put($directory, $imageData);
+                    }
+                    $isSuccess = true;
+                    $completed_count++;
+                    
+                    $downloadIdImage->update([
+                        'completed' => $completed_count,
+                    ]);
+                } catch (MaxAttemptsExceededException $th) {
+                    logger($imageUrl);
+                    logger($th);
+                    $imageData = false;
+                } catch (\Throwable $th) {
+                    logger($imageUrl);
+                    logger($th);
+                    $imageData = false;
                 }
-                $isSuccess = true;
-                $completed_count++;
-                
-                $downloadIdImage->update([
-                    'completed' => $completed_count,
-                ]);
-            } catch (MaxAttemptsExceededException $th) {
-                logger($imageUrl);
-                logger($th);
-                $imageData = false;
-            } catch (\Throwable $th) {
-                logger($imageUrl);
-                logger($th);
-                $imageData = false;
             }
         }
 

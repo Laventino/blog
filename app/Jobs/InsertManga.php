@@ -11,18 +11,21 @@ use Illuminate\Support\Facades\DB;
 use App\Manga;
 use App\MangaImage;
 
-class ResetManga implements ShouldQueue
+class InsertManga implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+
+    private $path;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($path)
     {
+        $this->path = $path;
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Video;
 use App\Workspace;
 use App\ListTasks;
 use App\Tasks;
@@ -112,6 +113,26 @@ class WorkspaceController extends Controller
             ]);
         }
         return $mark ? $mark->status : 1;
+    }
+
+    public function move(Request $request)
+    {
+        $id = $request->id;
+
+        $video = Video::find($id);
+        $video->path;
+        $path = storage_path() . "/app/public" . $video->path;
+        $filename = basename($path);
+        $newPath = "/videos/video/old/" . $filename;
+        $destinationPath = storage_path() . "/app/public" . $newPath;
+        copy($path, $destinationPath);
+        if (file_exists($destinationPath)) {
+            $video->update(['path' => $newPath]);
+            unlink($path);
+            return 'move';
+        }
+
+        return 'false';
     }
 
     public function getWorkspace($id)

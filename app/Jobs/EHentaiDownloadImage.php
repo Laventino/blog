@@ -20,17 +20,19 @@ class EHentaiDownloadImage implements ShouldQueue
     private $url;
     private $skip;
     private $downloadId;
+    private $is_fill;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($url, $skip = null, $downloadId = null)
+    public function __construct($url, $skip = null, $downloadId = null, $is_fill = false)
     {
         $this->url = $url;
         $this->skip = $skip;
         $this->downloadId = $downloadId;
+        $this->is_fill = $is_fill;
     }
 
     /**
@@ -59,8 +61,10 @@ class EHentaiDownloadImage implements ShouldQueue
         $titleRaw = isset($matchesTile[1]) ? $matchesTile[1] : '';
         // filter symbol can not use on folder
         $title = str_replace(array(":", " |", "|", "?", ",", "."), "", urldecode(html_entity_decode($titleRaw)));
+        $title = str_replace("/", "%", urldecode(html_entity_decode($title)));
+        $title = str_replace(array('"', "#"), "-", urldecode(html_entity_decode($title)));
         // Manually decode the HTML entity
-        $title = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title);
+        $title = htmlspecialchars_decode(preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title), ENT_QUOTES);
 
         $startPos = strpos($htmlListPage, '<p class="gpc">');
         $endPos = strpos($htmlListPage, '</p>', $startPos);
@@ -114,9 +118,19 @@ class EHentaiDownloadImage implements ShouldQueue
             $linkImagePages = array_merge($linkImagePages, $matchesImagePage[2]);
         }
         
+        
+        $storagePath = storage_path('/app/public/videos/PT/manga/e/' . $title);
+        $existFiles = File::isDirectory($storagePath) ? array_map(function($value) {
+            return pathinfo($value, PATHINFO_FILENAME);
+        }, scandir(storage_path() . "/app/public/videos/PT/manga/e/$title")) : [];
+
         $completed_count = $skip ?? 0;
 
         foreach ($linkImagePages as $key => $link) {
+            if ($this->is_fill && in_array($key, $existFiles)) {
+                $completed_count++;
+                continue;
+            }
             if ($skip && $key < $skip) {
                 continue;
             } 

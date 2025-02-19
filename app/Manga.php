@@ -13,7 +13,7 @@ class Manga extends Model
      * @var array
      */
     protected $fillable = [
-        'id', 'name', 'path', 'cover', 'genre', 'status'
+        'id', 'name', 'path', 'cover', 'genre', 'status', 'read', 'group_id', 'total_image'
     ];
 
     public function manga_images()

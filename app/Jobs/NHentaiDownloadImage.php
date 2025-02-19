@@ -60,7 +60,9 @@ class NHentaiDownloadImage implements ShouldQueue
         // filter symbol can not use on folder
         $title = str_replace(array(":", " |", "|", "?", ",", "."), "", urldecode(html_entity_decode($titleRaw)));
         // Manually decode the HTML entity
-        $title = preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title);
+        $title = htmlspecialchars_decode(preg_replace_callback("/(&#[0-9]+;)/", function($m) { return mb_convert_encoding($m[1], "UTF-8", "HTML-ENTITIES"); }, $title), ENT_QUOTES);
+        $title = trim(str_replace("/", "--", urldecode(html_entity_decode($title))));
+
         $totalImage = 0;
         $pattern = '/<a class="tag" href="\/search\/\?q=pages[^"]*"><span class="name">([^<]+)<\/span><\/a>/';
         preg_match($pattern, $htmlListPage, $matches);
@@ -87,30 +89,36 @@ class NHentaiDownloadImage implements ShouldQueue
         for ($i= ($skip ?? 1); $i <= $totalImage; $i++) { 
             $isSuccess = false;
             $imageData = null;
-            try {
-                $htmlImagePage = Http::withOptions(['verify' => false])->get($baseUrl . '/' . $i);
-                $pattern = '/<section id="image-container".*?><a.*?><img src="([^"]+)".*?><\/a><\/section>/';
-                preg_match($pattern, $htmlImagePage, $matches);
-                $imageUrl = isset($matches[1]) ? $matches[1] : '';
-                $extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
-                $localPath = $i . '.' . $extension;
-                $directory = '/public/videos/PT/manga/n/' . $title . '/' . $localPath;
-                $imageData = file_get_contents($imageUrl);
-                if ($imageData !== false) {
-                    Storage::put($directory, $imageData);
+            $try = 0;
+            
+            while (!$isSuccess && $try < 3) {
+                try {
+                    $try++;
+                    $htmlImagePage = Http::withOptions(['verify' => false])->get($baseUrl . '/' . $i);
+                    $pattern = '/<section id="image-container".*?><a.*?><img src="([^"]+)".*?><\/a><\/section>/';
+                    preg_match($pattern, $htmlImagePage, $matches);
+                    $imageUrl = isset($matches[1]) ? $matches[1] : '';
+                    $extension = pathinfo($imageUrl, PATHINFO_EXTENSION);
+                    $localPath = $i . '.' . $extension;
+                    $directory = '/public/videos/PT/manga/n/' . $title . '/' . $localPath;
+                    $imageData = file_get_contents($imageUrl);
+                    if ($imageData !== false) {
+                        Storage::put($directory, $imageData);
+                    }
+                    $isSuccess = true;
+                    $completed_count++;
+                    
+                    $downloadIdImage->update([
+                        'completed' => $completed_count,
+                    ]);
+                } catch (\Throwable $th) {
+                    logger($imageUrl);
+                    logger($th);
+                    $imageData = false;
                 }
-                $isSuccess = true;
-                $completed_count++;
-                
-                $downloadIdImage->update([
-                    'completed' => $completed_count,
-                ]);
-            } catch (\Throwable $th) {
-                logger($imageUrl);
-                logger($th);
-                $imageData = false;
             }
         }
+        
 
         if ($downloadIdImage) {
             $status = 4;
